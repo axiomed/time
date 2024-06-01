@@ -1,3 +1,5 @@
-class Date (α : Type) where
-  year : α → Year
-  month : α → Month
+import Time.Epoch
+import Time.Date
+import Time.Time
+import Time.DateTime
+import Time.Duration

@@ -1,8 +1,14 @@
+import Time.IO
+
 namespace Time
 
 abbrev Epoch := Fin 253402300800
 
 def Epoch.ofNat (n: Nat) (p: n < 253402300800 := by decide) : Epoch := ⟨n, p⟩
+
+def Epoch.now : IO Epoch := do
+  let secs ← Time.primGetCurrentEpochSeconds
+  pure ⟨secs % 253402300800, Nat.mod_lt secs (by decide)⟩
 
 namespace Constants
 

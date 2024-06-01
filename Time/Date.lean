@@ -3,7 +3,7 @@ import Time.Epoch
 
 namespace Time
 
-/-! Implementation of Date-like structures. Using the proleptic Gregorian calendar -/
+/-! Implementation of Date-like structures. Using the proleptic Gregorian calendar. -/
 
 /-- Defines the enumeration for days of the week. Each variant corresponds to a day of the week,
 from Monday to Sunday. -/
@@ -64,6 +64,8 @@ instance : Inhabited Month :=
 the input is within the valid range for a month. -/
 def Month.mk (data: Nat) (proof: data ≥ 1 ∧ data < 13 := by decide) : Month := ⟨data, proof⟩
 
+/-- Array with the size of each month that can start on one and ends at 31. It depends on the `leap`
+parameter because it needs to calculate if Febuary will have one day because of the Leap Year. -/
 def Month.monthSizes (leap: Bool) : Array (Nat.Bounded 1 32) :=
   #[ ⟨31, by decide⟩
    , ⟨28 + if leap then 1 else 0, by if h : leap then simp [h] else simp [h]⟩
@@ -79,14 +81,15 @@ def Month.monthSizes (leap: Bool) : Array (Nat.Bounded 1 32) :=
    , ⟨31, by decide⟩
    ]
 
+/-- Returns the size of the month using the `isLeap` boolean and the month. -/
 def Month.days (isLeap: Bool) (month: Month) : Nat :=
   if month.val = 2
     then if isLeap then 29 else 28
     else if month.val ≤ 7 then 30 + (month.val % 2)
     else 31 - (month.val % 2)
 
-/-- Month to seconds -/
-def Month.toSecs (isLeap: Bool) (month: Month) : Epoch :=
+/-- Transforms a month into seconds -/
+def Month.toSecs (isLeap: Bool) (month: Month) : Nat :=
   let secsThroughMonths :=
     [ 0, 31*86400, 59*86400, 90*86400
     , 120*86400, 151*86400, 181*86400, 212*86400
@@ -98,6 +101,7 @@ def Month.toSecs (isLeap: Bool) (month: Month) : Epoch :=
     then time + 86400
     else time
 
+/-- Gets an `Ordinal` (Day of the Year) and transforms it into a Month and a Day. -/
 def Month.ofOrdinal (isLeap: Bool) (ordinal: Ordinal isLeap) : (Month × Day) := Id.run do
   let mut cumulative : Fin 366 := ⟨0, by decide⟩
 
@@ -154,6 +158,30 @@ structure Date where
   day: Day
   deriving Repr
 
+def Date.toDays (date: Date) : Int :=
+  let m := ((date.month.val : Int) + 9) % 12
+  let y := (date.year : Int) - m / 10
+  365 * y + (y / 4) - (y / 100) + (y / 400) + (m * 306 + 5) / 10 + ((date.day.val : Int)- 1)
+
+def Date.ofDays (days : Int) : Date :=
+  let y := (10000 * days + 14780) / 3652425
+  let ddd := days - (365 * y + y / 4 - y / 100 + y / 400)
+  let (y, ddd) :=
+    if ddd < 0 then
+      let y := y - 1
+      let ddd := days - (365 * y + y / 4 - y / 100 + y / 400)
+      (y, ddd)
+    else
+      (y, ddd)
+  let mi := (100 * ddd + 52) / 3060
+  let mm := Fin.byMod (mi + 2).toNat 12
+  let y := y + (mi + 2) / 12
+  let dd := ddd - (mi * 306 + 5) / 10
+  let dd := Fin.byMod dd.toNat 31
+  Date.mk y.toNat (Month.ofFin mm) (Day.ofFin dd)
+
+#eval Date.toDays (Date.mk 1 (Month.mk 1) (Day.mk 1))
+
 instance : DateLike Date where
   year date := date.year
   month date := date.month
@@ -180,20 +208,13 @@ def Date.weekday (date: Date) : Weekday :=
 
   let k := y % 100
   let j := y / 100
-
   let part := q + (13 * (m + 1)) / 5 + k + (k / 4)
-
-  let h :=
-    -- Gregorian and Julian Calendar
-    if y ≥ 1582
-      then part + (j/4) - 2*j
-      else part + 5 - j
-
+  let h :=  if y ≥ 1582 then part + (j/4) - 2*j else part + 5 - j
   let d := (h + 5) % 7
-
   Weekday.ofFin (⟨d % 7, Nat.mod_lt d (by decide)⟩)
 
-def Date.daysFromCivil (date: Date) (_: date.year ≥ 1970) : Int :=
+/-- Calculates the number of days from the civil epoch (1970-01-01). -/
+def Date.daysFromCivil (date: Date) : Int :=
   let y : Int := if date.month.val > 2 then date.year else date.year - 1
   let era : Int := (if y ≥ 0 then y else y - 399) / 400
   let yoe : Int := y - era * 400
@@ -201,9 +222,10 @@ def Date.daysFromCivil (date: Date) (_: date.year ≥ 1970) : Int :=
   let d : Int := date.day.val
   let doy := (153 * (m + (if m > 2 then -3 else 9)) + 2) / 5 + d - 1
   let doe := yoe * 365 + yoe / 4 - yoe / 100 + doy
-  era * 146097 + doe - 719468
+  (era * 146097 + doe - 719468)
 
-def Date.civilFromDays (z: Int) : Date :=
+/-- Converts a number of days since the civil epoch to a Date. -/
+def Date.dateFromCivil (z: Int) : Date :=
   let z := z + 719468
   let era := (if z ≥ 0 then z else z - 146096) / 146097
   let doe := z - era * 146097
@@ -216,13 +238,18 @@ def Date.civilFromDays (z: Int) : Date :=
   let y := y + (if m <= 2 then 1 else 0)
   { year := Int.toNat y, month := Month.mk m.toNat sorry, day := Day.mk d.toNat sorry }
 
+def Date.subDays (date: Date) (days: Nat) : Date :=
+  Date.dateFromCivil (date.daysFromCivil - days)
+
+/-- Converts a number of days since the civil epoch to the corresponding weekday. -/
 def weekdayFromDays (z: Int) : Nat :=
   if z ≥ -4 then
     ((z + 4) % 7).toNat
   else
     ((z + 5) % 7 + 6).toNat
 
-def dateToEpoch (date: Date) : Epoch :=
-  let z := Date.daysFromCivil date sorry
-  let ns := z * 86400
-  ⟨ns.toNat, sorry⟩
+/-- Converts a Date to the Epoch representation. -/
+def Date.toEpoch (date: Date) (_: date.year ≥ 1970) : Epoch :=
+  let z := Date.daysFromCivil date
+  let ns := z.toNat * 86400
+  Fin.byMod ns 253402300800

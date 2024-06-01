@@ -33,9 +33,21 @@ class TimeLike (α: Type) where
 /-- A concrete representation of time using hours, minutes, and seconds. -/
 structure Time where
   hours: Hour
-  seconds: Second
   minutes: Minute
+  seconds: Second
   deriving Repr
+
+def Time.toSecs (time: Time) : Nat :=
+  time.hours * 3600 + time.minutes * 60 + time.seconds
+
+def Time.ofSecs (seconds: Nat) : Time :=
+  let h := seconds / 3600
+  let m := (seconds % 3600) / 60
+  let s := (seconds % 3600) % 60
+  { hours := Fin.byMod h 24, minutes := Fin.byMod m 60, seconds := Fin.byMod s 60 }
+
+def Time.subSecs (time: Time) (secondsToSubtract: Nat) : Time :=
+  Time.ofSecs (time.toSecs - secondsToSubtract)
 
 instance : TimeLike Time where
   hours t := t.hours
