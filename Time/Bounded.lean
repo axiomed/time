@@ -105,6 +105,7 @@ theorem sub_le_sub {n : Nat} (h: k ≤ n) (h₂: n < m) : n - k < m - k := by
 structure Bounded (lower: Nat) (upper: Nat) where
   val: Nat
   bounds: val ≥ lower ∧ val < upper
+  deriving BEq
 
 instance : Repr (Bounded m n) where
   reprPrec n p := reprPrec n.val p
@@ -129,5 +130,8 @@ def Bounded.toFin (bounded: Bounded n m) : Fin (m - n) := by
   · simp at h₁
     exact h₁
   · exact h₂
+
+instance : ToString (Bounded n m) where
+  toString x := toString x.val
 
 end Nat

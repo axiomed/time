@@ -49,6 +49,9 @@ def Time.ofSecs (seconds: Nat) : Time :=
 def Time.subSecs (time: Time) (secondsToSubtract: Nat) : Time :=
   Time.ofSecs (time.toSecs - secondsToSubtract)
 
+def Time.addSecs (time: Time) (secondsToAdd: Int) : Time :=
+  Time.ofSecs (time.toSecs + secondsToAdd).toNat
+
 instance : TimeLike Time where
   hours t := t.hours
   minutes t := t.minutes

@@ -6,12 +6,6 @@ namespace Time
 /-! This module contains definitions related to time, such as structures for representing system time,
 intervals, and durations. -/
 
-/-- `SystemTime` represents the current system time with seconds and nanoseconds precision. -/
-structure SystemTime where
-  secs: Nat
-  nanos: Nat
-  deriving Repr
-
 /-- `Instant` represents a place in time with seconds and nanoseconds precision. Does not represent
 norminal data as months and days. -/
 structure Instant where
@@ -19,14 +13,14 @@ structure Instant where
   nanos: Nat
   deriving Repr
 
-/-- `Duration` represents a time span with seconds and nanoseconds precision. Does notrepresent
+/-- `Duration` represents a time span with seconds and nanoseconds precision. Does not represent
 norminal data as months and days. -/
 structure Duration where
   secs: Int
   nanos: Int
   deriving Repr
 
-
+/-- Subtract two instants and returns the duration between two instants.-/
 def Instant.sub (t₁ t₂ : Instant) : Duration :=
   let nsPerSecond := 1000000000
   let nsec_diff := (t₁.nanos : Int) - (t₂.nanos : Int)

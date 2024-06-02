@@ -1,3 +1,5 @@
+import Time.Format.RFC2822
+
 import Time.Epoch
 import Time.Date
 import Time.Time
@@ -24,6 +26,12 @@ instance : TimeLike NaiveDateTime where
   hours := Time.hours ∘ NaiveDateTime.time
   minutes := Time.minutes ∘ NaiveDateTime.time
   seconds := Time.seconds ∘ NaiveDateTime.time
+
+/-- Converts a NaiveDateTime to an Epoch. -/
+def NaiveDateTime.toEpoch (dt: NaiveDateTime) : Epoch :=
+  let days := (Date.civilFromDate dt.date).toNat
+  let seconds := dt.time.toSecs
+  Fin.byMod (days * 86400 + seconds) 253402300800
 
 /-- Converts an Epoch to a NaiveDateTime by calculating the corresponding date and time. -/
 def NaiveDateTime.ofEpoch (epoch: Epoch) : NaiveDateTime := Id.run $ do
@@ -91,34 +99,123 @@ def NaiveDateTime.ofEpoch (epoch: Epoch) : NaiveDateTime := Id.run $ do
     time := { seconds, minutes, hours }
   }
 
+/-- Subtract a given number of seconds from a NaiveDateTime. -/
 def NaiveDateTime.subSecs (dt: NaiveDateTime) (secondsToSubtract: Nat) : NaiveDateTime :=
   let daysToSubtract := secondsToSubtract / 86400
   let dayToSubtract := secondsToSubtract % 86400
   let date := dt.date.subDays daysToSubtract
-  if dayToSubtract > dt.time.toSecs then
-    let date := date.subDays 1
-    let time := Time.ofSecs (86400 - dayToSubtract)
-    ⟨date, time⟩
+  if dayToSubtract > dt.time.toSecs
+    then ⟨date.subDays 1, Time.ofSecs (86400 - dayToSubtract)⟩
+    else ⟨date, dt.time.subSecs dayToSubtract⟩
+
+/-- Add a given number of seconds to a NaiveDateTime. -/
+def NaiveDateTime.addSecs (dt: NaiveDateTime) (secondsToAdd: Int) : NaiveDateTime :=
+  let daysToAdd := Int.div secondsToAdd 86400
+  let dayToAdd := Int.mod secondsToAdd 86400
+  let date := dt.date.addDays daysToAdd
+  if dt.time.toSecs + dayToAdd ≥ 86400 then
+    ⟨date.addDays 1, Time.ofSecs ((dt.time.toSecs + dayToAdd) - 86400).toNat⟩
+  else if dt.time.toSecs + dayToAdd < 0 then
+    dbg_trace dayToAdd
+    ⟨date.subDays 1, Time.ofSecs (86400 + (dt.time.toSecs + dayToAdd)).toNat⟩
   else
-    ⟨date, dt.time.subSecs dayToSubtract⟩
+    dbg_trace dayToAdd
+    ⟨date, dt.time.addSecs dayToAdd⟩
+
+/-- Get the current NaiveDateTime based on the current Epoch time. -/
+def NaiveDateTime.now : IO NaiveDateTime := do
+  let epoch ← Epoch.now
+  return NaiveDateTime.ofEpoch epoch
+
+structure Offset where
+  hours: Int
+  seconds: Int
+  deriving Repr
 
 /-- An enumeration representing different time zones. -/
 inductive TimeZone
   | GMT
   | UTC
-  | offset : Int → Int → TimeZone
+  | offset (val: Offset)
+  | local
   deriving Repr
 
-structure DateTime (tz: TimeZone) where
-  data: NaiveDateTime
 
+/-- Get the time zone offset in seconds. -/
 def TimeZone.offsetInSeconds : IO Int :=
   Time.primTimeOffset
 
+/-- Get the time zone offset in hours. -/
 def TimeZone.offsetInHours : IO Int :=
   (· / 3600) <$> TimeZone.offsetInSeconds
 
-def TimeZone.local : IO TimeZone := do
+/-- Get the local time zone. -/
+def TimeZone.getLocalOffset : IO Offset := do
   let seconds ← TimeZone.offsetInSeconds
   let hours := seconds / 3600
-  return TimeZone.offset hours seconds
+  return Offset.mk hours seconds
+
+/-- Gets the local offset by the timezone -/
+def TimeZone.toOffset : TimeZone → IO Offset
+  | .GMT => pure (Offset.mk 0 0)
+  | .UTC => pure (Offset.mk 0 0)
+  | .offset val => pure val
+  | .local => getLocalOffset
+
+/-- Structure representing a DateTime with a time zone. -/
+structure DateTime (tz: TimeZone) where
+  data: NaiveDateTime
+  offset: Offset
+  deriving Repr
+
+/-- Get the current local DateTime. -/
+def DateTime.nowLocal : IO (DateTime .local) := do
+  let offset ← TimeZone.getLocalOffset
+  let now ← NaiveDateTime.now
+  return DateTime.mk (now.addSecs offset.seconds) offset
+
+/-- Convert a DateTime with a time zone to an Epoch. -/
+def DateTime.toEpoch (dt: DateTime tz) : Epoch :=
+  dt.data.toEpoch
+
+/-- Convert an Epoch to a DateTime with a given time zone. -/
+def DateTime.ofEpoch (epoch: Epoch) (tz: TimeZone) : IO (DateTime tz) :=
+  DateTime.mk (NaiveDateTime.ofEpoch epoch) <$> tz.toOffset
+
+/-- Convert a DateTime with a time zone to an RFC 2822 date and time string. -/
+def DateTime.toRFC8222 (dt: DateTime tz) : String :=
+  let offset := dt.offset.seconds
+  let dayOfWeek := Format.RF2822.dayOfWeek (Date.weekday dt.data.date)
+  let day := toString dt.data.date.day
+  let month := Format.RF2822.month dt.data.date.month
+  let year := toString dt.data.date.year
+  let hours := leftPad 2 '0' $ toString dt.data.time.hours
+  let minutes := leftPad 2 '0' $ toString dt.data.time.minutes
+  let seconds := leftPad 2 '0' $ toString dt.data.time.seconds
+  let (sign, offset) := if offset >= 0 then ("+", offset) else ("-", -offset)
+  let offsetHours := leftPad 2 '0' $ toString (offset / 3600)
+  let offsetMinutes := leftPad 2 '0' $ toString ((offset % 3600) / 60)
+  s!"{dayOfWeek}, {day} {month} {year} {hours}:{minutes}:{seconds} {sign}{offsetHours}{offsetMinutes}"
+where
+  leftPad (n : Nat) (a : Char) (s : String) : String :=
+    "".pushn a (n - s.length) ++ s
+
+/-- Convert a DateTime with a time zone to an RFC 3339 date and time string. -/
+def DateTime.toRFC3339 (dt: DateTime tz) : String :=
+    let naiveDateTime := dt.data
+    let offset := if dt.offset.seconds ≤ 0 then -dt.offset.seconds else dt.offset.seconds
+    let dateStr := s!"{naiveDateTime.date.year}-{leftPad 2 '0' $ toString naiveDateTime.date.month.val}-{leftPad 2 '0' $ toString naiveDateTime.date.day}"
+    let timeStr := s!"{leftPad 2 '0' $ toString naiveDateTime.time.hours}:{leftPad 2 '0' $ toString naiveDateTime.time.minutes}:{leftPad 2 '0' $ toString naiveDateTime.time.seconds}"
+    let timezone :=
+      match tz with
+      | .GMT => " GMT"
+      | .UTC => " UTC"
+      | _ =>
+        let offsetHours := leftPad 2 '0' $ toString (offset / 3600)
+        let offsetMinutes := leftPad 2 '0' $ toString ((offset % 3600) / 60)
+        let offsetSign := if dt.offset.seconds ≥ 0 then "+" else "-"
+        s!"{offsetSign}{offsetHours}:{offsetMinutes}"
+    s!"{dateStr}T{timeStr}{timezone}"
+  where
+    leftPad (n : Nat) (a : Char) (s : String) : String :=
+      "".pushn a (n - s.length) ++ s
