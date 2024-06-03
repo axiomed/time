@@ -1,6 +1,14 @@
-import Time.Date
+import Time.Format.Formatter
+import Time.DateTime
+import Time.Bounded
+import Lean.Data.Parsec
 
 namespace Time.Format.RF2822
+
+open Time.Date
+open Lean.Parsec
+
+def format : Formatter.Format := Formatter.Format.spec! "DD MMM YYYY hh:mm ZZZ"
 
 /-- Helper function to convert a day of the week to its RFC 2822 abbreviation. -/
 def dayOfWeek (day: Weekday) : String :=
@@ -28,6 +36,24 @@ def month (month: Month) : String :=
   | 10, _ => "Oct"
   | 11, _ => "Nov"
   | 12, _ => "Dec"
+
+/-- Convert a DateTime with a time zone to an RFC 2822 date and time string. -/
+def DateTime.toRFC8222 (dt: DateTime tz) : String :=
+  let offset := dt.offset.second
+  let dayOfWeek := Format.RF2822.dayOfWeek (Date.weekday dt.data.date)
+  let day := toString dt.data.date.day
+  let month := Format.RF2822.month dt.data.date.month
+  let year := toString dt.data.date.year
+  let hour := leftPad 2 '0' $ toString dt.data.time.hour
+  let minute := leftPad 2 '0' $ toString dt.data.time.minute
+  let second := leftPad 2 '0' $ toString dt.data.time.second
+  let (sign, offset) := if offset >= 0 then ("+", offset) else ("-", -offset)
+  let offsetHours := leftPad 2 '0' $ toString (offset / 3600)
+  let offsetMinutes := leftPad 2 '0' $ toString ((offset % 3600) / 60)
+  s!"{dayOfWeek}, {day} {month} {year} {hour}:{minute}:{second} {sign}{offsetHours}{offsetMinutes}"
+where
+  leftPad (n : Nat) (a : Char) (s : String) : String :=
+    "".pushn a (n - s.length) ++ s
 
 /-- Parses a string representing a weekday abbreviation (e.g., "Sun", "Mon", etc.) into the
 corresponding `Weekday` enum. -/
@@ -59,3 +85,33 @@ def parseMonth (str : String) : Option Month :=
   | "Nov" => some ⟨11, by decide⟩
   | "Dec" => some ⟨12, by decide⟩
   | _ => none
+
+
+def transform (n: β → Option α) (p: Lean.Parsec β) : Lean.Parsec α := do
+  let res ← p
+  match n res with
+  | some n => pure n
+  | none => fail "cannot parse"
+
+def parseTime : Lean.Parsec Time := do
+  let hour ← transform Fin.ofNat? (Formatter.twoDigit <* pchar ':')
+  let minute ← transform Fin.ofNat? (Formatter.twoDigit <* pchar ':')
+  let second ← transform Fin.ofNat? (Formatter.twoDigit <* pchar ' ')
+  return { hour, minute, second }
+
+def parseDate : Lean.Parsec Date := do
+  let day ← transform Nat.Bounded.ofNat? (Formatter.twoDigit <* pchar ' ')
+  let month ← ws *> transform parseMonth (many1Chars (satisfy (· ≠ ' ')))
+  let year ← ws *> Formatter.fourDigit <* ws
+  return { year, month, day }
+
+def parser : Lean.Parsec (DateTime .GMT) := do
+  let _ ← transform parseWeekday (many1Chars (satisfy (· ≠ ',')))
+  let _ ← pchar ',' <* ws
+  let date ← parseDate
+  let time ← parseTime
+  let _ ← pstring "GMT" *> eof
+  return { data := { date, time }, offset := Offset.zero }
+
+def parse (s: String) : Except String (DateTime .GMT) :=
+  parser.run s

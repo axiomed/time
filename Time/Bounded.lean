@@ -1,6 +1,11 @@
 
 namespace Fin
 
+def ofNat? (x: Nat) : Option (Fin n) :=
+  if h : x < n
+    then some ⟨x, h⟩
+    else none
+
 def byMod (x: Nat) (y: Nat) (h₁: y > 0 := by decide) : Fin y :=
   ⟨x % y, by simp [Nat.mod_lt x h₁]⟩
 
@@ -130,6 +135,11 @@ def Bounded.toFin (bounded: Bounded n m) : Fin (m - n) := by
   · simp at h₁
     exact h₁
   · exact h₂
+
+def Bounded.ofNat? (val: Nat) : Option (Bounded lower upper) :=
+  if h: val ≥ lower ∧ val < upper
+    then Bounded.mk val h
+    else none
 
 instance : ToString (Bounded n m) where
   toString x := toString x.val

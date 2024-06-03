@@ -96,7 +96,7 @@ def Month.days (isLeap: Bool) (month: Month) : Nat :=
     else if month.val ≤ 7 then 30 + (month.val % 2)
     else 31 - (month.val % 2)
 
-/-- Transforms a month into seconds -/
+/-- Transforms a month into second -/
 def Month.toSecs (isLeap: Bool) (month: Month) : Nat :=
   let secsThroughMonths :=
     [ 0, 31*86400, 59*86400, 90*86400
@@ -159,17 +159,25 @@ class DateLike (α : Type) where
   month: α → Month
   day: α → Day
 
+  setYear : α → Year → α
+  setMonth : α → Month → α
+  setDay : α → Day → α
+
 /-- Date without time offset like UTC. -/
 structure Date where
   year: Year
   month: Month
   day: Day
-  deriving Repr, BEq
+  deriving Repr, BEq, Inhabited
 
 instance : DateLike Date where
   year date := date.year
   month date := date.month
   day date := date.day
+
+  setYear date value := { date with year := value }
+  setMonth date value := { date with month := value }
+  setDay date value := { date with day := value }
 
 /-- Constructs a `Date` from a number of days since an epoch. -/
 def Date.ofDays (days : Int) : Date :=
@@ -270,7 +278,7 @@ def weekdayFromDays (z: Int) : Nat :=
     then ((z + 4) % 7).toNat
     else ((z + 5) % 7 + 6).toNat
 
-/-- Converts a `Date` to the Epoch representation. This function calculates the number of seconds
+/-- Converts a `Date` to the Epoch representation. This function calculates the number of second
 from a `Date` to the Unix epoch, accounting for leap years and month lengths. -/
 def Date.toEpoch (date: Date) (_: date.year ≥ 1970) : Epoch :=
   let z := Date.civilFromDate date

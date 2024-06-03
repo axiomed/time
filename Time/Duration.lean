@@ -6,14 +6,14 @@ namespace Time
 /-! This module contains definitions related to time, such as structures for representing system time,
 intervals, and durations. -/
 
-/-- `Instant` represents a place in time with seconds and nanoseconds precision. Does not represent
+/-- `Instant` represents a place in time with second and nanoseconds precision. Does not represent
 norminal data as months and days. -/
 structure Instant where
   secs: Nat
   nanos: Nat
   deriving Repr
 
-/-- `Duration` represents a time span with seconds and nanoseconds precision. Does not represent
+/-- `Duration` represents a time span with second and nanoseconds precision. Does not represent
 norminal data as months and days. -/
 structure Duration where
   secs: Int
@@ -49,19 +49,19 @@ def Instant.elapsed (instant: Instant) : IO Duration := do
 def Instant.since (instant: Instant) (since: Instant) : Duration :=
   Instant.sub since instant
 
-/-- Returns a `Duration` representing the given number of seconds. -/
-def Duration.ofSecs (seconds: Second) : Duration :=
-  { secs := seconds.val, nanos := 0 }
+/-- Returns a `Duration` representing the given number of second. -/
+def Duration.ofSecs (second: Second) : Duration :=
+  { secs := second.val, nanos := 0 }
 
-/-- Returns a `Duration` representing the given number of minutes. -/
-def Duration.ofMinutes (minutes: Minute) : Duration :=
-  { secs := minutes * 60, nanos := 0 }
+/-- Returns a `Duration` representing the given number of minute. -/
+def Duration.ofMinutes (minute: Minute) : Duration :=
+  { secs := minute * 60, nanos := 0 }
 
-/-- Returns a `Duration` representing the given number of hours. -/
-def Duration.ofHours (hours: Hour) : Duration :=
-  { secs := hours * 3600, nanos := 0 }
+/-- Returns a `Duration` representing the given number of hour. -/
+def Duration.ofHours (hour: Hour) : Duration :=
+  { secs := hour * 3600, nanos := 0 }
 
 /-- Constructs a `Duration` from the given `Time`. -/
 def Duration.ofTime (time: Time) : Duration :=
-  { secs := TimeLike.hours time * 3600 + TimeLike.minutes time * 60 + TimeLike.seconds time
+  { secs := TimeLike.hour time * 3600 + TimeLike.minute time * 60 + TimeLike.second time
   , nanos := 0 }
