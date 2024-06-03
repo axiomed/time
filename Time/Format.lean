@@ -385,6 +385,16 @@ def Format.parseCallback (format: Format) (str: String) (callback: FormatType α
 def Format.parse (format: Format) (str: String) : Except String (DateTime tz) :=
   (parserToDate format).run str
 
+def Format.choiceParse (format: Array Format) (str: String) : Except String (DateTime tz) :=
+  let rec acc (idx: Nat) (format: Array Format) : Except String (DateTime tz) :=
+    if h : idx < format.size then
+      match format[idx].parse str with
+      | .ok s => pure s
+      | _ => acc (idx + 1) format
+    else
+      .error "no match"
+  acc 0 format
+
 def Format.convert (from_: Format) (to: Format) (subject: String) : Except String String := do
   let date ← from_.parse (tz := .UTC) subject
   return to.format date
@@ -409,6 +419,6 @@ def Formats.LongDateFormat := Format.spec! "EEEE, MMMM D, YYYY hh:mm:ss"
 
 def Formats.AscTime := Format.spec! "EEE MMM d hh:mm:ss YYYY"
 
-def Formats.RFC822 := Format.spec! "DD MMM YYYY hh:mm ZZZ"
+def Formats.RFC822 := Format.spec! "EEE, DD MMM YYYY hh:mm:ss ZZZ"
 
 def Formats.RFC850 := Format.spec! "EEEE, DD-MMM-YY hh:mm:ss ZZZ"
