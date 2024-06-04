@@ -73,7 +73,7 @@ private def specParserToken : Lean.Parsec DateTimeFormat
   <|> (pchar '\\') *> anyChar <&> (.str ∘ toString)
   <|> (pchar '\"' *>  many1Chars (satisfy (· ≠ '\"')) <* pchar '\"') <&> .str
   <|> (pchar '\'' *>  many1Chars (satisfy (· ≠ '\'')) <* pchar '\'') <&> .str
-  <|> many1Chars (satisfy isNonLetter) <&> .str
+  <|> many1Chars (satisfy (fun x => isNonLetter x ∧ x ≠ '\'' ∧ x ≠ '\"')) <&> .str
 
 private def specParser : Lean.Parsec Format :=
   (Array.toList <$> Lean.Parsec.many specParserToken) <* eof
