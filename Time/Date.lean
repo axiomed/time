@@ -124,8 +124,7 @@ def Month.ofOrdinal (isLeap: Bool) (ordinal: Ordinal isLeap) : (Month × Day) :=
       return (bounded, day)
     cumulative := cumulative + ⟨days.val, Nat.lt_trans proof.right (by decide)⟩
 
-  -- TODO: need to remove this
-  panic! "Impossible"
+  return Inhabited.default
 
 /-- Converts a `Fin 12` representing a month index into a corresponding `Month`. This function is
  useful for converting finite indices into actual months.-/
