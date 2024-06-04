@@ -81,7 +81,7 @@ private def specParser : Lean.Parsec Format :=
 private def specParse (s: String) : Except String Format :=
   specParser.run s
 
-private def Format.spec! (s: String) : Format :=
+def Format.spec! (s: String) : Format :=
   match specParser.run s with
   | .ok s => s
   | .error s => panic! s
