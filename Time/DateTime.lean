@@ -122,10 +122,8 @@ def NaiveDateTime.addSecs (dt: NaiveDateTime) (secondsToAdd: Int) : NaiveDateTim
   if dt.time.toSecs + dayToAdd ≥ 86400 then
     ⟨date.addDays 1, Time.ofSecs ((dt.time.toSecs + dayToAdd) - 86400).toNat⟩
   else if dt.time.toSecs + dayToAdd < 0 then
-    dbg_trace dayToAdd
     ⟨date.subDays 1, Time.ofSecs (86400 + (dt.time.toSecs + dayToAdd)).toNat⟩
   else
-    dbg_trace dayToAdd
     ⟨date, dt.time.addSecs dayToAdd⟩
 
 /-- Get the current NaiveDateTime based on the current Epoch time. -/
