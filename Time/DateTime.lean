@@ -1,3 +1,4 @@
+import Time.Local.TimeZone
 import Time.Epoch
 import Time.Date
 import Time.Time
@@ -7,18 +8,18 @@ namespace Time
 
 /-! Time manipulation utilities for Date and Time together. -/
 
-open Time.Constants
+open Time.Constants Time.Date Time.Local
 
 /--Naive representation of date and time without considering UTC offsets. -/
 structure NaiveDateTime where
-  date: Date
+  date: YMD
   time: Time
   deriving Repr, Inhabited
 
 instance : DateLike NaiveDateTime where
-  year := Date.year ∘ NaiveDateTime.date
-  month := Date.month ∘ NaiveDateTime.date
-  day := Date.day ∘ NaiveDateTime.date
+  year := YMD.year ∘ NaiveDateTime.date
+  month := YMD.month ∘ NaiveDateTime.date
+  day := YMD.day ∘ NaiveDateTime.date
 
   setYear date value := { date with date := DateLike.setYear date.date value }
   setMonth date value := { date with date := DateLike.setMonth date.date value }
@@ -35,25 +36,25 @@ instance : TimeLike NaiveDateTime where
 
 /-- Converts a NaiveDateTime to an Epoch. -/
 def NaiveDateTime.toEpoch (dt: NaiveDateTime) : Epoch :=
-  let days := (Date.civilFromDate dt.date).toNat
+  let days := (YMD.civilFromDate dt.date).toNat
   let second := dt.time.toSecs
-  Fin.byMod (days * 86400 + second) 253402300800
+  (days * 86400 + second)
 
 /-- Converts an Epoch to a NaiveDateTime by calculating the corresponding date and time. -/
-def NaiveDateTime.ofEpoch (epoch: Epoch) : NaiveDateTime := Id.run $ do
-  let daySecs : Fin 86400 := Fin.byMod epoch 86400
+def NaiveDateTime.ofEpoch (daySecs: Epoch) : NaiveDateTime := Id.run $ do
+  let daySecs : Nat := daySecs
 
-  let second := Fin.byMod daySecs 60
-  let minute := Fin.divMax (Fin.byMod daySecs 3600) 60
-  let hour := Fin.divMax daySecs 3600
+  let second := daySecs / 60
+  let minute := (daySecs % 3600) / 60
+  let hour := daySecs / 3600
 
-  let daysSinceEpoch := Fin.divMax epoch 86400
-  let boundedDaysSinceEpoch := Int.Bounded.ofFin daysSinceEpoch
+  let daysSinceEpoch := daySecs /86400
+  let boundedDaysSinceEpoch := daysSinceEpoch
 
-  let days := Int.Bounded.sub boundedDaysSinceEpoch leapYearEpoch
+  let days := boundedDaysSinceEpoch - leapYearEpoch
 
-  let mut quadracentennialCycles := days.data / daysPer400Y;
-  let mut remDays := days.data % daysPer400Y;
+  let mut quadracentennialCycles := days / daysPer400Y;
+  let mut remDays := days % daysPer400Y;
 
   if remDays < 0 then
     remDays := remDays + daysPer400Y
@@ -101,8 +102,8 @@ def NaiveDateTime.ofEpoch (epoch: Epoch) : NaiveDateTime := Id.run $ do
       pure $ Month.mk (mon.val + 2) (And.intro (Nat.lt_succ_iff.mpr $ Nat.zero_le (mon + 1)) lt)
 
   return {
-    date := { year := Int.toNat year, month := hmon, day := Day.ofFin mday },
-    time := { second, minute, hour }
+    date := { year := Int.ofNat year, month := hmon, day := Day.ofFin mday },
+    time := { second := Fin.byMod second 60, minute := Fin.byMod minute 60, hour := Fin.byMod hour 24 }
   }
 
 /-- Subtract a given number of second from a NaiveDateTime. -/
@@ -130,56 +131,6 @@ def NaiveDateTime.addSecs (dt: NaiveDateTime) (secondsToAdd: Int) : NaiveDateTim
 def NaiveDateTime.now : IO NaiveDateTime := do
   let epoch ← Epoch.now
   return NaiveDateTime.ofEpoch epoch
-
-structure Offset where
-  hour: Int
-  second: Int
-  deriving Repr, Inhabited
-
-def Offset.toIsoString (offset : Offset) (colon: Bool) : String :=
-  let (sign, time) := if offset.second >= 0 then ("+", offset.second) else ("-", -offset.second)
-  let hour := Int.div time 3600
-  let minutes := Int.div (Int.mod time 3600) 60
-  let hourStr := if hour < 10 then s!"0{hour}" else toString hour
-  let minuteStr := if minutes < 10 then s!"0{minutes}" else toString minutes
-    if colon then s!"{sign}{hourStr}:{minuteStr}"
-    else s!"{sign}{hourStr}{minuteStr}"
-
-def Offset.zero : Offset := { hour := 0, second := 0 }
-
-def Offset.ofHours (n: Int) : Offset := Offset.mk n (n*3600)
-
-def Offset.ofSeconds (n: Int) : Offset := Offset.mk (n/3600) n
-
-/-- An enumeration representing different time zones. -/
-inductive TimeZone
-  | GMT
-  | UTC
-  | offset (val: Offset)
-  | local
-  deriving Repr
-
-
-/-- Get the time zone offset in second. -/
-def TimeZone.offsetInSeconds : IO Int :=
-  Time.primTimeOffset
-
-/-- Get the time zone offset in hour. -/
-def TimeZone.offsetInHours : IO Int :=
-  (· / 3600) <$> TimeZone.offsetInSeconds
-
-/-- Get the local time zone. -/
-def TimeZone.getLocalOffset : IO Offset := do
-  let second ← TimeZone.offsetInSeconds
-  let hour := second / 3600
-  return Offset.mk hour second
-
-/-- Gets the local offset by the timezone -/
-def TimeZone.toOffset : TimeZone → IO Offset
-  | .GMT => pure (Offset.mk 0 0)
-  | .UTC => pure (Offset.mk 0 0)
-  | .offset val => pure val
-  | .local => getLocalOffset
 
 /-- Structure representing a DateTime with a time zone. -/
 structure DateTime (tz: TimeZone) where
@@ -222,26 +173,6 @@ def DateTime.ofEpochGMT (epoch: Epoch) : DateTime .GMT :=
 /-- Convert an Epoch to a DateTime with a given time zone. -/
 def DateTime.ofEpoch (epoch: Epoch) (tz: TimeZone) : IO (DateTime tz) :=
   DateTime.mk (NaiveDateTime.ofEpoch epoch) <$> tz.toOffset
-
-/-- Convert a DateTime with a time zone to an RFC 3339 date and time string. -/
-def DateTime.toRFC3339 (dt: DateTime tz) : String :=
-    let naiveDateTime := dt.data
-    let offset := if dt.offset.second ≤ 0 then -dt.offset.second else dt.offset.second
-    let dateStr := s!"{naiveDateTime.date.year}-{leftPad 2 '0' $ toString naiveDateTime.date.month.val}-{leftPad 2 '0' $ toString naiveDateTime.date.day}"
-    let timeStr := s!"{leftPad 2 '0' $ toString naiveDateTime.time.hour}:{leftPad 2 '0' $ toString naiveDateTime.time.minute}:{leftPad 2 '0' $ toString naiveDateTime.time.second}"
-    let timezone :=
-      match tz with
-      | .GMT => " GMT"
-      | .UTC => " UTC"
-      | _ =>
-        let offsetHours := leftPad 2 '0' $ toString (offset / 3600)
-        let offsetMinutes := leftPad 2 '0' $ toString ((offset % 3600) / 60)
-        let offsetSign := if dt.offset.second ≥ 0 then "+" else "-"
-        s!"{offsetSign}{offsetHours}:{offsetMinutes}"
-    s!"{dateStr}T{timeStr}{timezone}"
-  where
-    leftPad (n : Nat) (a : Char) (s : String) : String :=
-      "".pushn a (n - s.length) ++ s
 
 def DateTime.weekday (dt: DateTime tz) : Weekday :=
   dt.data.date.weekday

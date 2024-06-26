@@ -55,13 +55,13 @@ def Duration.ofSecs (second: Second) : Duration :=
 
 /-- Returns a `Duration` representing the given number of minute. -/
 def Duration.ofMinutes (minute: Minute) : Duration :=
-  { secs := minute * 60, nanos := 0 }
+  { secs := minute.toNat * 60, nanos := 0 }
 
 /-- Returns a `Duration` representing the given number of hour. -/
 def Duration.ofHours (hour: Hour) : Duration :=
-  { secs := hour * 3600, nanos := 0 }
+  { secs := hour.toNat * 3600, nanos := 0 }
 
 /-- Constructs a `Duration` from the given `Time`. -/
 def Duration.ofTime (time: Time) : Duration :=
-  { secs := TimeLike.hour time * 3600 + TimeLike.minute time * 60 + TimeLike.second time
+  { secs := (TimeLike.hour time).toNat * 3600 + (TimeLike.minute time).toNat * 60 + (TimeLike.second time).toNat
   , nanos := 0 }

@@ -1,27 +1,39 @@
-import Time.Bounded
+import Time.Interval
 
 namespace Time
 
 /-! This module provides an implementation of Time-like structures, which include representations
 for hour, minute, and second within valid bounds. -/
 
-/-- An hour in a day, represented as a value between 0 and 23. -/
-abbrev Hour := Fin 24
+/-- An hour in a day, represented as a value between 0 and 24. ISO format allows for 24:00:00  -/
+def Hour := Fin 25
+  deriving Repr, Inhabited
+
+@[inline]
+def Hour.toNat (hour: Hour) : Nat := hour.val
 
 /-- Constructor for `Hour` ensuring the data is within valid bounds. -/
-def Hour.mk (data: Nat) (proof: data < 24 := by decide) : Hour := ⟨data, proof⟩
+def Hour.mk (data: Nat) (proof: data < 25 := by decide) : Hour := ⟨data, proof⟩
 
-/-- A minute in an hour, represented as a value between 0 and 59. -/
-abbrev Minute := Fin 60
+/-- A minute in an hour, represented as a value between 0 and 50. -/
+def Minute := Fin 60
+  deriving Repr, Inhabited
+
+@[inline]
+def Minute.toNat (minute: Minute) : Nat := minute.val
 
 /-- Constructor for `Minute` ensuring the data is within valid bounds. -/
 def Minute.mk (data: Nat) (proof: data < 60 := by decide) : Minute := ⟨data, proof⟩
 
-/-- A second in a minute, represented as a value between 0 and 59. -/
-abbrev Second := Fin 60
+/-- A second in a minute, represented as a value between 0 and 60. Leap second counts :P -/
+def Second := Fin 61
+  deriving Repr, Inhabited
+
+@[inline]
+def Second.toNat (second: Second) : Nat := second.val
 
 /-- Constructor for `Second` ensuring the data is within valid bounds. -/
-def Second.mk (data: Nat) (proof: data < 60 := by decide) : Second := ⟨data, proof⟩
+def Second.mk (data: Nat) (proof: data < 61 := by decide) : Second := ⟨data, proof⟩
 
 /-- The `TimeLike` typeclass abstracts the concept of time representations that have hour, minute,
 and second.-/
@@ -42,7 +54,7 @@ structure Time where
   deriving Repr, Inhabited
 
 def Time.toSecs (time: Time) : Nat :=
-  time.hour * 3600 + time.minute * 60 + time.second
+  time.hour.toNat * 3600 + time.minute.toNat * 60 + time.second.toNat
 
 def Time.ofSecs (second: Nat) : Time :=
   let h := second / 3600
@@ -72,4 +84,4 @@ inductive HourMarker
 def HourMarker.toAbsolute (marker: HourMarker) (time: Hour) : Hour :=
   match marker with
   | .am => time
-  | .pm => time + 12
+  | .pm => Fin.byMod (time.toNat + 12) 24

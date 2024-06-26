@@ -1,10 +1,12 @@
 import Time.DateTime
-import Time.Bounded
+import Time.Interval
+import Time.Local.TimeZone
 import Lean.Data.Parsec
 
 namespace Time
 
 open Time.Date
+open Time.Local
 open Time.Time
 open Lean.Parsec
 
@@ -140,26 +142,26 @@ private def dayOfWeek (day: Weekday) : String :=
 
 private def formatWithDate (date : DateTime tz) : DateTimeFormat → String
   | .YYYY  => s!"{leftPad 4 '0' (toString date.data.date.year)}"
-  | .YY    => s!"{leftPad 2 '0' (toString $ date.data.date.year % 100)}"
+  | .YY    => s!"{leftPad 2 '0' (toString $ date.data.date.year.toNat % 100)}"
   | .MMMM  => unabbrevMonth date.data.date.month
   | .MMM   => abbrevMonth date.data.date.month
-  | .MM    => s!"{leftPad 2 '0' (toString $ date.data.date.month)}"
-  | .M     => s!"{date.data.date.month}"
-  | .DD    => s!"{leftPad 2 '0' (toString $ date.data.date.day)}"
-  | .D     => s!"{date.data.date.day}"
-  | .d     => s!"{leftPad 2 ' ' $ toString date.data.date.day}"
+  | .MM    => s!"{leftPad 2 '0' (toString $ date.data.date.month.toNat)}"
+  | .M     => s!"{date.data.date.month.toNat}"
+  | .DD    => s!"{leftPad 2 '0' (toString $ date.data.date.day.toNat)}"
+  | .D     => s!"{date.data.date.day.toNat}"
+  | .d     => s!"{leftPad 2 ' ' $ toString date.data.date.day.toNat}"
   | .EEEE  => dayOfWeek date.weekday
   | .EEE   => abbrevDayOfWeek date.weekday
-  | .hh    => s!"{leftPad 2 '0' (toString date.data.time.hour)}"
-  | .h     => s!"{date.data.time.hour}"
+  | .hh    => s!"{leftPad 2 '0' (toString date.data.time.hour.toNat)}"
+  | .h     => s!"{date.data.time.hour.toNat}"
   | .HH    => let hour := date.data.time.hour.val % 12; if hour == 0 then "12" else s!"{leftPad 2 '0' $ toString hour}"
   | .H     => let hour := date.data.time.hour.val % 12; if hour == 0 then "12" else s!"{hour}"
-  | .AA    => if date.data.time.hour < 12 then "AM" else "PM"
-  | .aa    => if date.data.time.hour < 12 then "am" else "pm"
-  | .mm    => s!"{leftPad 2 '0' $ toString date.data.time.minute}"
-  | .m     => s!"{date.data.time.minute}"
-  | .ss    => s!"{leftPad 2 '0' $ toString date.data.time.second}"
-  | .s     => s!"{date.data.time.second}"
+  | .AA    => if date.data.time.hour.toNat < 12 then "AM" else "PM"
+  | .aa    => if date.data.time.hour.toNat < 12 then "am" else "pm"
+  | .mm    => s!"{leftPad 2 '0' $ toString date.data.time.minute.toNat}"
+  | .m     => s!"{date.data.time.minute.toNat}"
+  | .ss    => s!"{leftPad 2 '0' $ toString date.data.time.second.toNat}"
+  | .s     => s!"{date.data.time.second.toNat}"
   | .ZZZZZ => date.offset.toIsoString true
   | .ZZZZ  => date.offset.toIsoString false
   | .ZZZ   => if date.offset.second = 0 then "UTC" else date.offset.toIsoString false
@@ -190,8 +192,8 @@ private def fourDigit : Lean.Parsec Nat := do
 
 @[simp]
 private def SingleFormatType : DateTimeFormat → Type
-  | .YYYY => Nat
-  | .YY => Nat
+  | .YYYY => Year
+  | .YY => Year
   | .MMMM => Month
   | .MMM => Month
   | .MM => Month
@@ -296,15 +298,15 @@ private def timeOrUTC (utcString: String) (colon: Bool) : Lean.Parsec Offset :=
   (pstring utcString *> pure Offset.zero) <|> timeOffset colon
 
 private def parserWithFormat : (typ: DateTimeFormat) → Lean.Parsec (SingleFormatType typ)
-  | .YYYY => fourDigit
-  | .YY => parseYearTwo
+  | .YYYY => Int.ofNat <$> fourDigit
+  | .YY => Int.ofNat <$> parseYearTwo
   | .MMMM => parseMonthUnabbrev
   | .MMM => parseMonth
-  | .MM => transform Nat.Bounded.ofNat? twoDigit
-  | .M => transform Nat.Bounded.ofNat? number
-  | .DD => transform Nat.Bounded.ofNat? twoDigit
-  | .D => transform Nat.Bounded.ofNat? number
-  | .d => transform Nat.Bounded.ofNat? (Lean.Parsec.orElse twoDigit (λ_ => pchar ' ' *> (singleDigit)))
+  | .MM => transform Interval.ofNat? twoDigit
+  | .M => transform Interval.ofNat? number
+  | .DD => transform Interval.ofNat? twoDigit
+  | .D => transform Interval.ofNat? number
+  | .d => transform Interval.ofNat? (Lean.Parsec.orElse twoDigit (λ_ => pchar ' ' *> (singleDigit)))
   | .EEEE => parseWeekdayUnnabrev
   | .EEE => parseWeekday
   | .hh => transform Fin.ofNat? twoDigit
