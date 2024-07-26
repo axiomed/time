@@ -51,12 +51,13 @@ private theorem Bounded.max_gt_zero (bounded : Bounded 0 n) : n ≥ 0 := by
   simp_all only [ge_iff_le, gt_iff_lt]
   omega
 
-@[inline]
+@[inline, specialize]
 def Bounded.ofNat (n : Nat) (proof : n ≥ lower ∧ n < upper) : Bounded lower upper :=
   ⟨n, by omega⟩
 
 /-- Convert a [Bounded] with lower bound greater or equal than 0 to a [Nat] type. -/
-@[inline]
+
+@[inline, specialize]
 def Bounded.toNat (bounded : Bounded lower n) (h₀ : lower ≥ 0) : Nat :=
   if h : bounded.val ≥ 0 then
     bounded.val.toNat
@@ -65,7 +66,8 @@ def Bounded.toNat (bounded : Bounded lower n) (h₀ : lower ≥ 0) : Nat :=
     contradiction
 
 /-- Convert a [Bounded] with lower bound 0 to a [Fin] type. -/
-@[inline]
+
+@[inline, specialize]
 def Bounded.toFin (bounded : Bounded lower n) (h : lower ≥ 0) : Fin n.toNat := by
   have ⟨left, right⟩ := bounded.property
   have h : bounded.val ≥ 0 := by
@@ -81,23 +83,24 @@ def Bounded.toFin (bounded : Bounded lower n) (h : lower ≥ 0) : Fin n.toNat :=
   · contradiction
 
 /-- Transform a [Fin] into a [Bounded] that starts on 0. -/
-@[inline]
+@[inline, specialize]
 def Bounded.ofFin (fin : Fin n) : Bounded 0 n :=
   ⟨fin.val, by omega⟩
 
 /-- Adjust the bounds of a [Bounded] by adding a constant value to both the lower and upper bounds. -/
-@[inline]
+@[inline, specialize]
 def Bounded.add (bounded : Bounded n m) (num : Int) : Bounded (n + num) (m + num) := by
   let ⟨left, right⟩ := bounded.property
   refine ⟨bounded.val + num, ?_⟩
   apply And.intro
   all_goals omega
 
-@[inline]
+@[inline, specialize]
 def Bounded.sub (bounded : Bounded n m) (num : Int) : Bounded (n - num) (m - num) :=
   Bounded.add bounded (-num)
 
 /-- Adjust the bounds of a [Bounded] by multiplying both the lower and upper bounds by a positive constant. -/
+@[inline, specialize]
 def Bounded.mul (bounded : Bounded n m) (num : Nat) (h : num > 0 := by decide) (h₁ : bounded.val ≥ 0) : Bounded (n * num) (m * num) := by
   let ⟨left, right⟩ := bounded.property
   refine ⟨bounded.val * num, And.intro ?_ ?_⟩
@@ -109,6 +112,7 @@ def Bounded.mul (bounded : Bounded n m) (num : Nat) (h : num > 0 := by decide) (
     apply Int.mul_lt_mul_of_pos_right
     all_goals simp_all
 
+@[inline, specialize]
 def Bounded.div (bounded : Bounded n m) (num : Int) (h: num > 0) (div : num ∣ m) : Bounded (n / num) (m / num) := by
   let ⟨left, right⟩ := bounded.property
   refine ⟨bounded.val / num, And.intro ?_ ?_⟩
@@ -118,14 +122,19 @@ def Bounded.div (bounded : Bounded n m) (num : Int) (h: num > 0) (div : num ∣ 
   · apply (Int.ediv_lt_iff_lt_mul h).mpr
     simp_all [Int.ediv_mul_cancel div]
 
-def Bounded.mod (b : Bounded n m) (i : Int) (hi : 0 < i) : Bounded 0 i := by
-  refine ⟨b.val % i, And.intro ?_ ?_⟩
+@[inline, specialize]
+def Bounded.byMod (b : Int) (i : Int) (hi : 0 < i) : Bounded 0 i := by
+  refine ⟨b % i, And.intro ?_ ?_⟩
   · apply Int.emod_nonneg
     intro a
     simp_all [Int.lt_irrefl]
   · exact Int.emod_lt_of_pos _ hi
 
-@[inline]
+@[inline, specialize]
+def Bounded.mod (b : Bounded n m) (i : Int) (hi : 0 < i) : Bounded 0 i :=
+  Bounded.byMod b.val i hi
+
+@[inline, specialize]
 def Fin.ofBoundaries {x y : Nat} {ze : Fin z} (h₁ : x > y) (h₂ : x ≤ y + ze.val) : Fin z := by
   refine ⟨x - y, ?_⟩
   omega

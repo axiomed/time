@@ -23,7 +23,7 @@ def Offset.ofHours (n: Int) : Offset := Offset.mk n (n*3600)
 def Offset.ofSeconds (n: Int) : Offset := Offset.mk (n/3600) n
 
 /-- An enumeration representing different time zones. -/
-inductive TimeZone
+inductive TimeZoneKind
   | GMT
   | UTC
   | offset (val: Offset)
@@ -45,7 +45,7 @@ def TimeZone.getLocalOffset : IO Offset := do
   return Offset.mk hour second
 
 /-- Gets the local offset by the timezone -/
-def TimeZone.toOffset : TimeZone → IO Offset
+def TimeZoneKind.toOffset : TimeZoneKind → IO Offset
   | .GMT => pure (Offset.mk 0 0)
   | .UTC => pure (Offset.mk 0 0)
   | .offset val => pure val

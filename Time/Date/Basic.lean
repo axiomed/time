@@ -25,6 +25,15 @@ def Weekday.ofFin : Fin 7 → Weekday
   | 5 => .sat
   | 6 => .sun
 
+def Weekday.toNat : Weekday → Nat
+  | .mon => 0
+  | .tue => 1
+  | .wed => 2
+  | .thu => 3
+  | .fri => 4
+  | .sat => 5
+  | .sun => 6
+
 def Weekday.ofNat? : Nat → Option Weekday
   | 0 => some .mon
   | 1 => some .tue
@@ -46,7 +55,6 @@ def Weekday.ofDays : Int → Weekday :=
     natOfDays (z: Int) : Nat :=
       if z ≥ -4 then ((z + 4) % 7).toNat
         else ((z + 5) % 7 + 6).toNat
-
 
 /-- Represents a day of the year, independent of the year itself. It's defined as a bounded
 natural number between 0 and 365. -/
@@ -82,6 +90,9 @@ def Day.ofFin (fin : Fin 31) : Day :=
 @[inline]
 def Day.ofNatSucc (fin : Nat) : Day :=
   Day.ofFin (Fin.ofNat fin)
+
+instance : LE Day where
+  le x y := x.val < y.val
 
 instance : OfNat Day 28 where ofNat := ⟨28, by decide⟩
 instance : OfNat Day 29 where ofNat := ⟨29, by decide⟩
@@ -141,7 +152,7 @@ def Month.monthSizes (isLeap : Bool) : { val : Array Day // val.size = 12 } :=
 def Month.days (isLeap : Bool) (month : Month) : Day :=
   if month.val = 2
     then if isLeap then 29 else 28
-    else Month.monthSizesNonLeap.get! (month.toNat - 1)
+    else Month.monthSizesNonLeap.get ((month.sub 1).toFin (by decide))
 
 /-- Transforms a month into second. -/
 def Month.toSecs (isLeap : Bool) (month : Month) : Nat :=
@@ -211,6 +222,14 @@ def Year.forceDay (year : Year) (month : Month)  (day : Day) : { x : Day // x.va
     then ⟨max, Int.le_refl max.val⟩
     else ⟨⟨day.val, day.property⟩, Int.not_lt.mp h⟩
 
+@[inline]
+def Year.leapYearsSince (year : Year) : Int :=
+  year.toInt / 4 - year.toInt / 100 + year.toInt / 400
+
+@[inline]
+def Year.daysSince (year : Year) : Int :=
+  year.toInt * 365 + year.leapYearsSince
+
 /-- The range of CE years supported. -/
 def Year.CE := Bounded 1 10000
 
@@ -227,3 +246,11 @@ class DateLike (α : Type) where
   year: α → Year
   month: α → Month
   day: α → Day
+
+/-- Represents a year in proleptic gregorian calendar. -/
+def WeekOfYear := Bounded 1 54
+  deriving Repr, BEq
+
+@[inline]
+def WeekOfYear.mk (data : Nat) (proof : data ≥ 1 ∧ data < 54 := by decide) : WeekOfYear :=
+  Bounded.ofNat data proof
