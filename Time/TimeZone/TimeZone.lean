@@ -7,7 +7,7 @@ structure Offset where
   second: Int
   deriving Repr, Inhabited
 
-def Offset.toIsoString (offset : Offset) (colon: Bool) : String :=
+def Offset.toIsoString (offset : Offset) (colon : Bool) : String :=
   let (sign, time) := if offset.second >= 0 then ("+", offset.second) else ("-", -offset.second)
   let hour := Int.div time 3600
   let minutes := Int.div (Int.mod time 3600) 60
