@@ -1,7 +1,7 @@
 import Lake
 open Lake DSL
 
-package «Time» where
+package Time where
 
-lean_lib «Time» where
+lean_lib Time where
   -- add library configuration options here
