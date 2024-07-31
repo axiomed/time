@@ -9,14 +9,18 @@ import Time.Time.Unit.Hour
 import Time.Time.Unit.Minute
 import Time.Time.Unit.Second
 
+set_option linter.all true
+
 namespace Time
 
 namespace Second.Offset
 
-@[inline, specialize]
+/-- Convert `Second.Offset` to `Minute.Offset` -/
+@[inline]
 def toMinutes (offset : Second.Offset) : Minute.Offset :=
   offset.div 60
 
+/-- Convert `Second.Offset` to `Hour.Offset` -/
 @[inline]
 def toHours (offset : Second.Offset) : Hour.Offset :=
   offset.div 3600
@@ -25,6 +29,7 @@ end Second.Offset
 
 namespace Minute.Offset
 
+/-- Convert `Minute.Offset` to `Hour.Offset` -/
 @[inline]
 def toHours (offset : Minute.Offset) : Hour.Offset :=
   offset.div 60

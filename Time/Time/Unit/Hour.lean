@@ -14,9 +14,12 @@ import Time.Time.Unit.Second
 namespace Time
 open Lean
 
+set_option linter.all true
+
 namespace Hour
+
 /--
-`Ordinal` represents a bounded value for hours, which ranges between 0 and 59.
+`Ordinal` represents a bounded value for hours, which ranges between 0 and 23.
 -/
 def Ordinal := Bounded.LE 0 23
   deriving Repr, BEq, LE
@@ -26,7 +29,7 @@ instance [Le n 23] : OfNat Ordinal n where ofNat := Bounded.LE.ofNat n Le.p
 instance : Inhabited Ordinal where default := 0
 
 /--
-`Offset` represents an offset in hours. It is defined as an `Int`.
+`Offset` represents an offset in hours. It is defined as an `Int`. It starts on the epoch.
 -/
 def Offset : Type := UnitVal 3600
   deriving Repr, BEq, Inhabited, Add, Sub, Mul, Div, Neg
@@ -38,18 +41,21 @@ namespace Ordinal
 /--
 Creates an `Ordinal` from a natural number, ensuring the value is within bounds.
 -/
+@[inline]
 def ofNat (data : Nat) (h: data ≤ 23 := by decide) : Ordinal :=
   Bounded.LE.ofNat data h
 
 /--
 Creates an `Ordinal` from a `Fin`, ensuring the value is within bounds.
 -/
+@[inline]
 def ofFin (data : Fin 24) : Ordinal :=
   Bounded.LE.ofFin data
 
 /--
 Converts an `Ordinal` to an `Offset`.
 -/
+@[inline]
 def toOffset (ordinal : Ordinal) : Offset :=
   UnitVal.ofInt ordinal.val
 
@@ -58,16 +64,15 @@ end Ordinal
 namespace Offset
 
 /--
-Converts an `Offset` to another unit type.
+Convert the `Hour` offset to a `Second` Offset.
 -/
-def convert (val : UnitVal a) : UnitVal b :=
-  let ratio := b.div a
-  UnitVal.ofInt <| val.toInt * ratio.num / ratio.den
-
 @[inline]
 def toSeconds (val : Offset) : Second.Offset :=
   val.mul 3600
 
+/--
+Convert the `Hour` offset to a `Minute` Offset.
+-/
 @[inline]
 def toMinutes (val : Offset) : Minute.Offset :=
   val.mul 60

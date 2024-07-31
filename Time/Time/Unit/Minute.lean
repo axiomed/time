@@ -13,6 +13,8 @@ import Time.Time.Unit.Second
 namespace Time
 open Lean
 
+set_option linter.all true
+
 namespace Minute
 
 /--
@@ -38,31 +40,27 @@ namespace Ordinal
 /--
 Creates an `Ordinal` from a natural number, ensuring the value is within bounds.
 -/
+@[inline]
 def ofNat (data : Nat) (h: data ≤ 59 := by decide) : Ordinal :=
   Bounded.LE.ofNat data h
 
 /--
 Creates an `Ordinal` from a `Fin`, ensuring the value is within bounds.
 -/
+@[inline]
 def ofFin (data : Fin 60) : Ordinal :=
   Bounded.LE.ofFin data
 
 /--
-Converts an `Ordinal` to an `Offset`.
+Converts an `Ordinal` to an `Offset`. It starts on the epoch.
 -/
+@[inline]
 def toOffset (ordinal : Ordinal) : Offset :=
   UnitVal.ofInt ordinal.val
 
 end Ordinal
 
 namespace Offset
-
-/--
-Converts an `Offset` to another unit type.
--/
-def convert (val : UnitVal a) : UnitVal b :=
-  let ratio := b.div a
-  UnitVal.ofInt <| val.toInt * ratio.num / ratio.den
 
 /--
 Converts an `Offset` to `Second.Offset`.

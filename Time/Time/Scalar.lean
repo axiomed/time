@@ -8,14 +8,14 @@ import Time.Time.Basic
 
 namespace Time
 
-structure ScalarTime where
+structure Scalar where
   seconds : Second.Offset
 
-def ScalarTime.toSeconds (time : ScalarTime) : Second.Offset :=
+def Scalar.toSeconds (time : Scalar) : Second.Offset :=
   time.seconds
 
-def ScalarTime.toMinutes (time : ScalarTime) : Minute.Offset :=
+def Scalar.toMinutes (time : Scalar) : Minute.Offset :=
   time.seconds.toMinutes
 
-def ScalarTime.toHours (time : ScalarTime) : Hour.Offset :=
+def Scalar.toHours (time : Scalar) : Hour.Offset :=
   time.seconds.toHours
