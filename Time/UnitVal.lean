@@ -22,78 +22,70 @@ structure UnitVal (α : Rat) where
   val : Int
   deriving Inhabited, BEq
 
+namespace UnitVal
+
 /--
 Creates a `UnitVal` from an `Int`.
 -/
 @[inline]
-def UnitVal.ofInt (value : Int) : UnitVal α :=
+def ofInt (value : Int) : UnitVal α :=
   ⟨value⟩
 
 /--
 Creates a `UnitVal` from a `Nat`.
 -/
 @[inline]
-def UnitVal.ofNat (value : Nat) : UnitVal α :=
+def ofNat (value : Nat) : UnitVal α :=
   ⟨value⟩
 
 /--
 Converts a `UnitVal` to an `Int`.
 -/
 @[inline]
-def UnitVal.toInt (unit : UnitVal α) : Int :=
+def toInt (unit : UnitVal α) : Int :=
   unit.val
 
 /--
 Multiplies the `UnitVal` by an `Int`, resulting in a new `UnitVal` with an adjusted ratio.
 -/
 @[inline]
-def UnitVal.mul (unit : UnitVal a) (factor : Int) : UnitVal (a / factor) :=
+def mul (unit : UnitVal a) (factor : Int) : UnitVal (a / factor) :=
   ⟨unit.val * factor⟩
 
 /--
 Divides the `UnitVal` by an `Int`, resulting in a new `UnitVal` with an adjusted ratio.
 -/
 @[inline]
-def UnitVal.div (unit : UnitVal a) (divisor : Int) : UnitVal (a * divisor) :=
+def div (unit : UnitVal a) (divisor : Int) : UnitVal (a * divisor) :=
   ⟨unit.val * divisor⟩
 
 /--
 Adds two `UnitVal` values of the same ratio.
 -/
 @[inline]
-def UnitVal.add (u1 : UnitVal α) (u2 : UnitVal α) : UnitVal α :=
+def add (u1 : UnitVal α) (u2 : UnitVal α) : UnitVal α :=
   ⟨u1.val + u2.val⟩
 
 /--
 Subtracts one `UnitVal` value from another of the same ratio.
 -/
 @[inline]
-def UnitVal.sub (u1 : UnitVal α) (u2 : UnitVal α) : UnitVal α :=
+def sub (u1 : UnitVal α) (u2 : UnitVal α) : UnitVal α :=
   ⟨u1.val - u2.val⟩
 
-instance : OfNat (UnitVal α) n where
-  ofNat := ⟨Int.ofNat n⟩
+/--
+Converts an `Offset` to another unit type.
+-/
+def convert (val : UnitVal a) : UnitVal b :=
+  let ratio := a.div b
+  ofInt <| val.toInt * ratio.num / ratio.den
 
-instance : Repr (UnitVal α) where
-  reprPrec x p := reprPrec x.val p
-
-instance : LE (UnitVal α) where
-  le x y := x.val ≤ y.val
-
-instance : LT (UnitVal α) where
-  lt x y := x.val < y.val
-
-instance : Add (UnitVal α) where
-  add x y := ⟨x.val + y.val⟩
-
-instance : Sub (UnitVal α) where
-  sub x y := ⟨x.val - y.val⟩
-
-instance : Mul (UnitVal α) where
-  mul x y := ⟨x.val * y.val⟩
-
-instance : Div (UnitVal α) where
-  div x y := ⟨x.val / y.val⟩
-
-instance : Neg (UnitVal α) where
-  neg x := ⟨-x.val⟩
+instance : OfNat (UnitVal α) n where ofNat := ⟨Int.ofNat n⟩
+instance : Repr (UnitVal α) where reprPrec x p := reprPrec x.val p
+instance : LE (UnitVal α) where le x y := x.val ≤ y.val
+instance : LT (UnitVal α) where lt x y := x.val < y.val
+instance : Add (UnitVal α) where add x y := ⟨x.val + y.val⟩
+instance : Sub (UnitVal α) where sub x y := ⟨x.val - y.val⟩
+instance : Mul (UnitVal α) where mul x y := ⟨x.val * y.val⟩
+instance : Div (UnitVal α) where div x y := ⟨x.val / y.val⟩
+instance : Neg (UnitVal α) where neg x := ⟨-x.val⟩

@@ -38,6 +38,8 @@ abbrev LE := @Bounded LE.le
 instance [Le lo n] [Le n hi] : OfNat (Bounded.LE lo hi) n where
   ofNat := ⟨n, And.intro (Int.ofNat_le.mpr Le.p) (Int.ofNat_le.mpr Le.p)⟩
 
+instance [Le lo hi] : Inhabited (Bounded.LE lo hi) where
+  default := ⟨lo, And.intro (Int.le_refl lo) (Int.ofNat_le.mpr Le.p)⟩
 
 /--
 A `Bounded` integer that the relation used is the the less-than relation so, it includes all
@@ -69,6 +71,35 @@ def ofNat (val : Nat) (h : val ≤ hi) : Bounded.LE 0 hi :=
   Bounded.mk val (And.intro (Int.ofNat_zero_le val) (Int.ofNat_le.mpr h))
 
 /--
+Convert a `Nat` to a `Bounded.LE` using the lower boundary too.
+-/
+@[inline]
+def ofNat' (val : Nat) (h : lo ≤ val ∧ val ≤ hi) : Bounded.LE lo hi :=
+  Bounded.mk val (And.intro (Int.ofNat_le.mpr h.left) (Int.ofNat_le.mpr h.right))
+
+/--
+Convert a `Nat` to a `Bounded.LE` using the lower boundary too.
+-/
+@[inline]
+def force (val : Int) (h : lo ≤ hi) : Bounded.LE lo hi :=
+  if h₀ : lo ≤ val then
+    if h₁ : val ≤ hi
+      then ⟨val, And.intro h₀ h₁⟩
+      else ⟨hi, And.intro h (Int.le_refl hi)⟩
+  else ⟨lo, And.intro (Int.le_refl lo) h⟩
+
+/--
+Convert a `Nat` to a `Bounded.LE` using the lower boundary too.
+-/
+@[inline]
+def force! [Le lo hi] (val : Int) : Bounded.LE lo hi :=
+  if h₀ : lo ≤ val then
+    if h₁ : val ≤ hi
+      then ⟨val, And.intro h₀ h₁⟩
+      else panic! "greater than hi"
+  else panic! "lower than lo"
+
+/--
 Convert a `Bounded.LE` to a Nat.
 -/
 @[inline]
@@ -79,8 +110,29 @@ def toNat (n : Bounded.LE lo hi) : Nat :=
 Convert a `Bounded.LE` to a Nat.
 -/
 @[inline]
+def toNat' (n : Bounded.LE lo hi) (h : lo ≥ 0) : Nat :=
+  let h₁ := (Int.le_trans h n.property.left)
+  match n.val, h₁ with
+  | .ofNat n, _ => n
+  | .negSucc _, h => nomatch h
+
+/--
+Convert a `Bounded.LE` to an Int.
+-/
+@[inline]
 def toInt (n : Bounded.LE lo hi) : Int :=
   n.val
+
+/--
+Convert a `Bounded.LE` to a `Fin`.
+-/
+@[inline]
+def toFin (n : Bounded.LE lo hi) (h₀ : 0 ≤ lo) (h₁ : lo < hi) : Fin (hi + 1).toNat := by
+  let h := n.property.right
+  let h₁ := Int.le_trans h₀ n.property.left
+  refine ⟨n.val.toNat, (Int.toNat_lt h₁).mpr ?_⟩
+  rw [Int.toNat_of_nonneg (by omega)]
+  exact Int.lt_add_one_of_le h
 
 /--
 Convert a `Fin` to a `Bounded.LE`.
@@ -88,6 +140,15 @@ Convert a `Fin` to a `Bounded.LE`.
 @[inline]
 def ofFin (fin : Fin (Nat.succ hi)) : Bounded.LE 0 hi :=
   ofNat fin.val (Nat.le_of_lt_succ fin.isLt)
+
+/--
+Convert a `Fin` to a `Bounded.LE`.
+-/
+@[inline]
+def ofFin' {lo : Nat} (fin : Fin (Nat.succ hi)) (h : lo ≤ hi) : Bounded.LE lo hi :=
+  if h₁ : fin.val ≥ lo
+    then ofNat' fin.val (And.intro h₁ ((Nat.le_of_lt_succ fin.isLt)))
+    else ofNat' lo (And.intro (Nat.le_refl lo) h)
 
 /--
 Creates a new `Bounded.LE` using a the modulus of a number.
@@ -99,6 +160,15 @@ def byMod (b : Int) (i : Int) (hi : i > 0) : Bounded.LE 0 i := by
     intro a
     simp_all [Int.lt_irrefl]
   · exact Int.le_of_lt (Int.emod_lt_of_pos b hi)
+
+/--
+Adjust the bounds of a `Bounded` by adding a constant value to both the lower and upper bounds.
+-/
+@[inline]
+def truncate (bounded : Bounded.LE n m) : Bounded.LE 0 (m - n) := by
+  let ⟨left, right⟩ := bounded.property
+  refine ⟨bounded.val - n, And.intro ?_ ?_⟩
+  all_goals omega
 
 /--
 Adjust the bounds of a `Bounded` by adding a constant value to both the lower and upper bounds.
