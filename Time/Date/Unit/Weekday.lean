@@ -82,4 +82,4 @@ Converts a `Nat` to a `Weekday`. Panics if the value provided is invalid.
 def ofNat! (n: Nat) : Weekday :=
   match ofNat? n with
   | some res => res
-  | none     => panic! "unwrap weekday"
+  | none     => panic! "invalid weekday"

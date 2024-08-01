@@ -154,12 +154,14 @@ def ofFin' {lo : Nat} (fin : Fin (Nat.succ hi)) (h : lo ≤ hi) : Bounded.LE lo 
 Creates a new `Bounded.LE` using a the modulus of a number.
 -/
 @[inline]
-def byMod (b : Int) (i : Int) (hi : i > 0) : Bounded.LE 0 i := by
+def byMod (b : Int) (i : Int) (hi : i > 0) : Bounded.LE 0 (i - 1) := by
   refine ⟨b % i, And.intro ?_ ?_⟩
   · apply Int.emod_nonneg b
     intro a
     simp_all [Int.lt_irrefl]
-  · exact Int.le_of_lt (Int.emod_lt_of_pos b hi)
+  · apply Int.le_of_lt_add_one
+    simp [Int.add_sub_assoc]
+    exact Int.emod_lt_of_pos b hi
 
 /--
 Adjust the bounds of a `Bounded` by adding a constant value to both the lower and upper bounds.
@@ -189,12 +191,25 @@ def sub (bounded : Bounded.LE n m) (num : Int) : Bounded.LE (n - num) (m - num) 
   add bounded (-num)
 
 /--
-Adjust the bounds of a `Bounded` by applying the mod operation constraining the lowe bound to 0 and
+Adjust the bounds of a `Bounded` by applying the mod operation constraining the lower bound to 0 and
 the upper bound to the value.
 -/
 @[inline]
-def mod (bounded : Bounded.LE n num) (num : Int) (hi : 0 < num) : Bounded.LE 0 num :=
+def mod (bounded : Bounded.LE n num) (num : Int) (hi : 0 < num) : Bounded.LE 0 (num - 1) :=
   byMod bounded.val num hi
+
+/--
+Adjust the bounds of a `Bounded` by applying the div operation.
+-/
+def div (bounded : Bounded.LE n m) (num : Int) (h: num > 0) : Bounded.LE (n / num) (m / num) := by
+  let ⟨left, right⟩ := bounded.property
+  refine ⟨bounded.val / num, And.intro ?_ ?_⟩
+  apply Int.ediv_le_ediv
+  · exact h
+  · exact left
+  · apply Int.ediv_le_ediv
+    · exact h
+    · exact right
 
 end LE
 end Bounded

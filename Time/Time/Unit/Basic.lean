@@ -8,11 +8,11 @@ import Time.UnitVal
 import Time.Time.Unit.Hour
 import Time.Time.Unit.Minute
 import Time.Time.Unit.Second
+import Time.Time.Unit.Nanosecond
 
 set_option linter.all true
 
 namespace Time
-
 namespace Second.Offset
 
 /-- Convert `Second.Offset` to `Minute.Offset` -/
@@ -35,5 +35,4 @@ def toHours (offset : Minute.Offset) : Hour.Offset :=
   offset.div 60
 
 end Minute.Offset
-
 end Time

@@ -29,7 +29,7 @@ instance [Le n 23] : OfNat Ordinal n where ofNat := Bounded.LE.ofNat n Le.p
 instance : Inhabited Ordinal where default := 0
 
 /--
-`Offset` represents an offset in hours. It is defined as an `Int`. It starts on the epoch.
+`Offset` represents an offset in hours. It is defined as an `Int`.
 -/
 def Offset : Type := UnitVal 3600
   deriving Repr, BEq, Inhabited, Add, Sub, Mul, Div, Neg

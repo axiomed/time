@@ -52,7 +52,7 @@ def ofFin (data : Fin 60) : Ordinal :=
   Bounded.LE.ofFin data
 
 /--
-Converts an `Ordinal` to an `Offset`. It starts on the epoch.
+Converts an `Ordinal` to an `Offset`.
 -/
 @[inline]
 def toOffset (ordinal : Ordinal) : Offset :=

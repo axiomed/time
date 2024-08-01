@@ -29,7 +29,7 @@ instance [Le 1 n] [Le n 12] : OfNat Ordinal n where
 instance : Inhabited Ordinal where default := 1
 
 /--
-`Offset` represents an offset in months. It is defined as an `Int`. It starts on the epoch.
+`Offset` represents an offset in months. It is defined as an `Int`.
 -/
 def Offset : Type := Int
   deriving Repr, BEq, Inhabited, Add, Sub, Mul, Div, Neg

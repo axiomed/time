@@ -17,12 +17,6 @@ set_option linter.all true
 namespace Second
 
 /--
-The `unit` definition expresses the quantity of seconds that a `Second` represents.
-In this case, it is set to 1.
--/
-def unit : Rat := 1
-
-/--
 `Ordinal` represents a bounded value for seconds, which ranges between 0 and 60.
 This accounts for potential leap seconds.
 -/
@@ -34,7 +28,7 @@ instance [Le n 60] : OfNat Ordinal n where ofNat := Bounded.LE.ofNat n Le.p
 instance : Inhabited Ordinal where default := 0
 
 /--
-`Offset` represents an offset in seconds. It is defined as an `Int`. It starts on the epoch.
+`Offset` represents an offset in seconds. It is defined as an `Int`.
 -/
 def Offset : Type := UnitVal 1
   deriving Repr, BEq, Inhabited, Add, Sub, Mul, Div, Neg
