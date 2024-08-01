@@ -18,7 +18,7 @@ structure Date where
   months : Month.Ordinal
   days : Day.Ordinal
   valid : days ≤ (months.days years.isLeap)
-  deriving Repr
+  deriving Repr, BEq
 
 namespace Date
 
@@ -49,7 +49,26 @@ def weekday (date: Date) : Weekday :=
   .ofFin ⟨d.toNat % 7, Nat.mod_lt d.toNat (by decide)⟩
 
 /--
-Returns the `Scalar` starting from the epoch.
+Returns the `Weekday` of a `Date` using Zeller's Congruence for the Julian calendar.
+-/
+def weekdayJulian (date : Date) : Weekday :=
+  let month := date.months.toInt
+  let years := date.years.toInt
+
+  let q := date.days.toInt
+  let m := if month < 3 then month + 12 else month
+  let y := if month < 3 then years - 1 else years
+
+  let k := y % 100
+  let j := y / 100
+
+  let h := (q + (13 * (m + 1)) / 5 + k + (k / 4) + 5 - j) % 7
+  let d := (h + 5 - 1) % 7
+
+  .ofFin ⟨d.toNat % 7, Nat.mod_lt d.toNat (by decide)⟩
+
+/--
+Returns the `Scalar` starting from the UNIX epoch.
 -/
 def toScalar (date : Date) : Scalar :=
   let y : Int := if date.months.toInt > 2 then date.years else date.years.toInt - 1
@@ -80,7 +99,7 @@ def ofScalar (z: Scalar) : Date :=
   .force y (.force m (by decide)) (.force (d + 1) (by decide))
 
 instance : HAdd Date Day.Offset Date where
-  hAdd date days := ofScalar (toScalar date + ⟨days⟩)
+  hAdd date days :=  ofScalar (toScalar date + ⟨days⟩)
 
 instance : HAdd Date Scalar Date where
   hAdd date days := ofScalar (toScalar date + days)

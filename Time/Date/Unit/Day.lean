@@ -4,13 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
 prelude
+import Time.Time
 import Time.UnitVal
 import Time.Bounded
 import Time.Classes
 import Lean.Data.Rat
 
 namespace Date
-open Lean
+open Lean Time
 
 set_option linter.all true
 
@@ -71,6 +72,12 @@ def toOffset (ordinal : Ordinal) : Offset :=
 end Ordinal
 
 namespace Offset
+
+/--
+
+-/
+def toSeconds (days : Offset) : Second.Offset :=
+  days.mul 86400
 
 end Offset
 end Day

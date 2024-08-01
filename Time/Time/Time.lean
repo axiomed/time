@@ -12,7 +12,8 @@ structure Time where
   hours : Hour.Ordinal
   minutes : Minute.Ordinal
   seconds : Second.Ordinal
-  deriving Repr, Inhabited
+  nanos : Nanosecond.Ordinal
+  deriving Repr, Inhabited, BEq
 
 def Time.toSeconds (time : Time) : Second.Offset :=
   time.hours.toOffset.toSeconds +

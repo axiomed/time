@@ -43,7 +43,7 @@ def toMonths (val : Offset) : Month.Offset :=
   val.mul 12
 
 /--
-Checks if the `Year` is a Leap Year.
+Checks if the `Year` is a Gregorian Leap Year.
 -/
 @[inline]
 def isLeap (y : Offset) : Bool :=

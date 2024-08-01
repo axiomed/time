@@ -34,7 +34,7 @@ def fromScalar (scalar : Scalar) : WeekDate :=
   let totalDays := scalar.toDays
   let year := totalDays / 365
   let week :=
-    Bounded.LE.byMod totalDays 365 (by decide)
+    Bounded.LE.byEmod totalDays 365 (by decide)
     |>.div 7 (by decide)
     |>.add 1
   { year := year, week := week }

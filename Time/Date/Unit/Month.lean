@@ -14,8 +14,6 @@ import Time.Date.Unit.Day
 namespace Date
 open Lean Time
 
-set_option linter.all true
-
 namespace Month
 /--
 `Ordinal` represents a bounded value for months, which ranges between 1 and 12.
@@ -37,6 +35,19 @@ def Offset : Type := Int
 instance : OfNat Offset n := ⟨Int.ofNat n⟩
 
 namespace Ordinal
+
+@[inline] def january : Ordinal := 1
+@[inline] def february : Ordinal := 2
+@[inline] def march : Ordinal := 3
+@[inline] def april : Ordinal := 4
+@[inline] def may : Ordinal := 5
+@[inline] def june : Ordinal := 6
+@[inline] def july : Ordinal := 7
+@[inline] def august : Ordinal := 8
+@[inline] def september : Ordinal := 9
+@[inline] def october : Ordinal := 10
+@[inline] def november : Ordinal := 11
+@[inline] def december : Ordinal := 12
 
 /--
 Creates an `Ordinal` from a natural number, ensuring the value is within bounds.
@@ -144,9 +155,7 @@ def ofOrdinal {leap : Bool} (ordinal : Day.Ordinal.OfYear leap) : Month.Ordinal 
     cumulative := cumulative + ⟨days.toFin (by decide) (by decide), h₂⟩
 
   -- TODO: need to remove this
-  panic! "Impossible"
-
-
+  Inhabited.default
 
 end Ordinal
 end Month

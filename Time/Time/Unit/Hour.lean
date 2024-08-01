@@ -21,10 +21,10 @@ namespace Hour
 /--
 `Ordinal` represents a bounded value for hours, which ranges between 0 and 23.
 -/
-def Ordinal := Bounded.LE 0 23
-  deriving Repr, BEq, LE
+def Ordinal := Bounded.LE 0 24
+  deriving Repr, BEq, LE, LT
 
-instance [Le n 23] : OfNat Ordinal n where ofNat := Bounded.LE.ofNat n Le.p
+instance [Le n 24] : OfNat Ordinal n where ofNat := Bounded.LE.ofNat n Le.p
 
 instance : Inhabited Ordinal where default := 0
 
@@ -42,14 +42,14 @@ namespace Ordinal
 Creates an `Ordinal` from a natural number, ensuring the value is within bounds.
 -/
 @[inline]
-def ofNat (data : Nat) (h: data ≤ 23 := by decide) : Ordinal :=
+def ofNat (data : Nat) (h: data ≤ 24 := by decide) : Ordinal :=
   Bounded.LE.ofNat data h
 
 /--
 Creates an `Ordinal` from a `Fin`, ensuring the value is within bounds.
 -/
 @[inline]
-def ofFin (data : Fin 24) : Ordinal :=
+def ofFin (data : Fin 25) : Ordinal :=
   Bounded.LE.ofFin data
 
 /--

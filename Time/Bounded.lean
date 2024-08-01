@@ -154,7 +154,7 @@ def ofFin' {lo : Nat} (fin : Fin (Nat.succ hi)) (h : lo ≤ hi) : Bounded.LE lo 
 Creates a new `Bounded.LE` using a the modulus of a number.
 -/
 @[inline]
-def byMod (b : Int) (i : Int) (hi : i > 0) : Bounded.LE 0 (i - 1) := by
+def byEmod (b : Int) (i : Int) (hi : i > 0) : Bounded.LE 0 (i - 1) := by
   refine ⟨b % i, And.intro ?_ ?_⟩
   · apply Int.emod_nonneg b
     intro a
@@ -162,6 +162,27 @@ def byMod (b : Int) (i : Int) (hi : i > 0) : Bounded.LE 0 (i - 1) := by
   · apply Int.le_of_lt_add_one
     simp [Int.add_sub_assoc]
     exact Int.emod_lt_of_pos b hi
+
+
+/--
+Creates a new `Bounded.LE` using a the Truncating modulus of a number.
+-/
+@[inline]
+def byMod (b : Int) (i : Int) (hi : 0 < i) : Bounded.LE (- (i - 1)) (i - 1) := by
+  refine ⟨b.mod i, And.intro ?_ ?_⟩
+  · simp [Int.mod]
+    split <;> try contradiction
+    next m n =>
+      let h := Int.emod_nonneg (a := m) (b := n) (Int.ne_of_gt hi)
+      apply (Int.le_trans · h)
+      apply Int.le_of_neg_le_neg
+      simp_all
+      exact (Int.le_sub_one_of_lt hi)
+    next m n =>
+      apply Int.neg_le_neg
+      have h := Int.mod_lt_of_pos (m + 1) hi
+      exact Int.le_sub_one_of_lt h
+  · exact Int.le_sub_one_of_lt (Int.mod_lt_of_pos b hi)
 
 /--
 Adjust the bounds of a `Bounded` by adding a constant value to both the lower and upper bounds.
@@ -171,6 +192,24 @@ def truncate (bounded : Bounded.LE n m) : Bounded.LE 0 (m - n) := by
   let ⟨left, right⟩ := bounded.property
   refine ⟨bounded.val - n, And.intro ?_ ?_⟩
   all_goals omega
+
+/--
+Adjust the bounds of a `Bounded` by adding a constant value to both the lower and upper bounds.
+-/
+@[inline]
+def truncateTop (bounded : Bounded.LE n m) (h : bounded.val ≤ j) : Bounded.LE n j := by
+  refine ⟨bounded.val, And.intro ?_ ?_⟩
+  · exact bounded.property.left
+  · exact h
+
+/--
+Adjust the bounds of a `Bounded` by adding a constant value to both the lower and upper bounds.
+-/
+@[inline]
+def truncateBottom (bounded : Bounded.LE n m) (h : bounded.val ≥ j) : Bounded.LE j m := by
+  refine ⟨bounded.val, And.intro ?_ ?_⟩
+  · exact h
+  · exact bounded.property.right
 
 /--
 Adjust the bounds of a `Bounded` by adding a constant value to both the lower and upper bounds.
@@ -191,16 +230,25 @@ def sub (bounded : Bounded.LE n m) (num : Int) : Bounded.LE (n - num) (m - num) 
   add bounded (-num)
 
 /--
-Adjust the bounds of a `Bounded` by applying the mod operation constraining the lower bound to 0 and
+Adjust the bounds of a `Bounded` by applying the emod operation constraining the lower bound to 0 and
 the upper bound to the value.
 -/
 @[inline]
-def mod (bounded : Bounded.LE n num) (num : Int) (hi : 0 < num) : Bounded.LE 0 (num - 1) :=
+def emod (bounded : Bounded.LE n num) (num : Int) (hi : 0 < num) : Bounded.LE 0 (num - 1) :=
+  byEmod bounded.val num hi
+
+/--
+Adjust the bounds of a `Bounded` by applying the emod operation constraining the lower bound to 0 and
+the upper bound to the value.
+-/
+@[inline]
+def mod (bounded : Bounded.LE n num) (num : Int) (hi : 0 < num) : Bounded.LE (- (num - 1)) (num - 1) :=
   byMod bounded.val num hi
 
 /--
 Adjust the bounds of a `Bounded` by applying the div operation.
 -/
+@[inline]
 def div (bounded : Bounded.LE n m) (num : Int) (h: num > 0) : Bounded.LE (n / num) (m / num) := by
   let ⟨left, right⟩ := bounded.property
   refine ⟨bounded.val / num, And.intro ?_ ?_⟩
@@ -210,6 +258,14 @@ def div (bounded : Bounded.LE n m) (num : Int) (h: num > 0) : Bounded.LE (n / nu
   · apply Int.ediv_le_ediv
     · exact h
     · exact right
+
+@[inline]
+def expandTop (bounded : Bounded.LE lo hi) (h : hi ≤ nhi) : Bounded.LE lo nhi :=
+  ⟨bounded.val, And.intro bounded.property.left (Int.le_trans bounded.property.right h)⟩
+
+@[inline]
+def expandBottom (bounded : Bounded.LE lo hi) (h : nlo ≤ lo) : Bounded.LE nlo hi :=
+  ⟨bounded.val, And.intro (Int.le_trans h bounded.property.left) bounded.property.right⟩
 
 end LE
 end Bounded

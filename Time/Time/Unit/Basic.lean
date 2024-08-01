@@ -35,4 +35,5 @@ def toHours (offset : Minute.Offset) : Hour.Offset :=
   offset.div 60
 
 end Minute.Offset
+
 end Time

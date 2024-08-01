@@ -17,6 +17,17 @@ set_option linter.all true
 namespace Nanosecond
 
 /--
+`Ordinal` represents a bounded value for seconds, which ranges between 0 and 60.
+This accounts for potential leap seconds.
+-/
+def Ordinal := Bounded.LE 0 999999999
+  deriving Repr, BEq, LE
+
+instance : OfNat Ordinal n where ofNat := Bounded.LE.ofFin (Fin.ofNat n)
+
+instance : Inhabited Ordinal where default := 0
+
+/--
 `Offset` represents an offset in nanoseconds. It is defined as an `Int`.
 -/
 def Offset : Type := UnitVal (1 / 1000000000)
