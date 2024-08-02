@@ -9,8 +9,8 @@ import Time.Time.Basic
 namespace Time
 
 /--
-`HourMarker` represents the two 12-hour periods of the day: `am` for hours between 12:00 AM and
-11:59 AM, and `pm` for hours between 12:00 PM and 11:59 PM.
+`HourMarker` represents the two 12-hour periods of the day: `am` for hour between 12:00 AM and
+11:59 AM, and `pm` for hour between 12:00 PM and 11:59 PM.
 -/
 inductive HourMarker
   | am

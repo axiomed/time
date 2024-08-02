@@ -17,8 +17,8 @@ set_option linter.all true
 namespace Nanosecond
 
 /--
-`Ordinal` represents a bounded value for seconds, which ranges between 0 and 60.
-This accounts for potential leap seconds.
+`Ordinal` represents a bounded value for second, which ranges between 0 and 60.
+This accounts for potential leap second.
 -/
 def Ordinal := Bounded.LE 0 999999999
   deriving Repr, BEq, LE, LT

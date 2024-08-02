@@ -19,7 +19,7 @@ set_option linter.all true
 namespace Hour
 
 /--
-`Ordinal` represents a bounded value for hours, which ranges between 0 and 23.
+`Ordinal` represents a bounded value for hour, which ranges between 0 and 23.
 -/
 def Ordinal := Bounded.LE 0 24
   deriving Repr, BEq, LE, LT
@@ -29,7 +29,7 @@ instance [Le n 24] : OfNat Ordinal n where ofNat := Bounded.LE.ofNat n Le.p
 instance : Inhabited Ordinal where default := 0
 
 /--
-`Offset` represents an offset in hours. It is defined as an `Int`.
+`Offset` represents an offset in hour. It is defined as an `Int`.
 -/
 def Offset : Type := UnitVal 3600
   deriving Repr, BEq, Inhabited, Add, Sub, Mul, Div, Neg

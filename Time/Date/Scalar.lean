@@ -10,49 +10,49 @@ import Time.Date.Basic
 namespace Date
 
 /--
-`Scalar` represents a date offset, using the number of days as the underlying unit.
+`Scalar` represents a date offset, using the number of day as the underlying unit.
 -/
 structure Scalar where
-  days : Day.Offset
+  day : Day.Offset
   deriving Repr, BEq, Inhabited
 
-instance : Add Scalar where add x y := ⟨x.days + y.days⟩
-instance : Sub Scalar where sub x y := ⟨x.days - y.days⟩
-instance : Mul Scalar where mul x y := ⟨x.days * y.days⟩
-instance : Div Scalar where div x y := ⟨x.days / y.days⟩
-instance : Neg Scalar where neg x := ⟨-x.days⟩
+instance : Add Scalar where add x y := ⟨x.day + y.day⟩
+instance : Sub Scalar where sub x y := ⟨x.day - y.day⟩
+instance : Mul Scalar where mul x y := ⟨x.day * y.day⟩
+instance : Div Scalar where div x y := ⟨x.day / y.day⟩
+instance : Neg Scalar where neg x := ⟨-x.day⟩
 
 namespace Scalar
 
 /--
-Creates a `Scalar` from a given number of days.
+Creates a `Scalar` from a given number of day.
 -/
-def ofDays (days : Int) : Scalar :=
-  ⟨UnitVal.ofInt days⟩
+def ofDays (day : Int) : Scalar :=
+  ⟨UnitVal.ofInt day⟩
 
 /--
-Retrieves the number of days from a `Scalar`.
+Retrieves the number of day from a `Scalar`.
 -/
 def toDays (scalar : Scalar) : Int :=
-  scalar.days.val
+  scalar.day.val
 
 /--
-Adds a specified number of days to the `Scalar`, returning a new `Scalar`.
+Adds a specified number of day to the `Scalar`, returning a new `Scalar`.
 -/
-def addDays (scalar : Scalar) (days : Day.Offset) : Scalar :=
-  ⟨scalar.days + days⟩
+def addDays (scalar : Scalar) (day : Day.Offset) : Scalar :=
+  ⟨scalar.day + day⟩
 
 /--
-Subtracts a specified number of days from the `Scalar`, returning a new `Scalar`.
+Subtracts a specified number of day from the `Scalar`, returning a new `Scalar`.
 -/
-def subDays (scalar : Scalar) (days : Day.Offset) : Scalar :=
-  ⟨scalar.days - days⟩
+def subDays (scalar : Scalar) (day : Day.Offset) : Scalar :=
+  ⟨scalar.day - day⟩
 
 /--
 Converts a `Scalar` to a `Day.Offset`.
 -/
 def toOffset (scalar : Scalar) : Day.Offset :=
-  scalar.days
+  scalar.day
 
 /--
 Creates a `Scalar` from a `Day.Offset`.

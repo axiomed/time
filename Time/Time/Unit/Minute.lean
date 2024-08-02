@@ -18,7 +18,7 @@ set_option linter.all true
 namespace Minute
 
 /--
-`Ordinal` represents a bounded value for minutes, which ranges between 0 and 59.
+`Ordinal` represents a bounded value for minute, which ranges between 0 and 59.
 -/
 def Ordinal := Bounded.LE 0 59
   deriving Repr, BEq, LE
@@ -28,7 +28,7 @@ instance [Le n 59] : OfNat Ordinal n where ofNat := Bounded.LE.ofNat n Le.p
 instance : Inhabited Ordinal where default := 0
 
 /--
-`Offset` represents an offset in minutes. It is defined as an `Int`.
+`Offset` represents an offset in minute. It is defined as an `Int`.
 -/
 def Offset : Type := UnitVal 60
   deriving Repr, BEq, Inhabited, Add, Sub, Mul, Div, Neg

@@ -9,19 +9,19 @@ import Time.Time.Basic
 namespace Time
 
 structure Scalar where
-  seconds : Second.Offset
-  nanos : Nanosecond.Ordinal
+  second : Second.Offset
+  nano : Nanosecond.Ordinal
 
 namespace Scalar
 
 def toSeconds (time : Scalar) : Second.Offset :=
-  time.seconds
+  time.second
 
 def toMinutes (time : Scalar) : Minute.Offset :=
-  time.seconds.toMinutes
+  time.second.toMinutes
 
 def toHours (time : Scalar) : Hour.Offset :=
-  time.seconds.toHours
+  time.second.toHours
 
 end Scalar
 end Time

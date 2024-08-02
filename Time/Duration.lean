@@ -13,17 +13,17 @@ open Time
 `Instant` represents a place in time with second and nanoseconds precision.
 -/
 structure Instant where
-  seconds : Second.Offset
-  nanos : Nanosecond.Ordinal
-  valid : seconds.val ≥ 0 ∧ nanos.val ≥ 0
+  second : Second.Offset
+  nano : Nanosecond.Ordinal
+  valid : second.val ≥ 0 ∧ nano.val ≥ 0
   deriving Repr
 
 /--
 Time duration with nanosecond precision. This type allows negative duration.
 -/
 structure Duration where
-  seconds : Second.Offset
-  nanos : Nanosecond.Span
+  second : Second.Offset
+  nano : Nanosecond.Span
 
 namespace Instant
 
@@ -31,16 +31,16 @@ namespace Instant
 Gets the difference of two `Instant` in a `Duration`.
 -/
 def sub (t₁ t₂ : Instant) : Duration :=
-  let nsec_diff := (t₁.nanos).subBounds (t₂.nanos)
-  let sec_diff := (t₁.seconds) - (t₂.seconds)
+  let nsec_diff := (t₁.nano).subBounds (t₂.nano)
+  let sec_diff := (t₁.second) - (t₂.second)
   if h : sec_diff.val > 0 ∧ nsec_diff.val ≤ -1 then
     let truncated := nsec_diff.truncateTop h.right
-    { seconds := (sec_diff - 1), nanos := truncated.addTop 1000000000 }
+    { second := (sec_diff - 1), nano := truncated.addTop 1000000000 }
   else if h₁ : sec_diff.val < 0 ∧ nsec_diff.val ≥ 1 then
     let truncated := nsec_diff.truncateBottom h₁.right
-    { seconds := (sec_diff + 1), nanos := (truncated.subBottom 1000000000) }
+    { second := (sec_diff + 1), nano := (truncated.subBottom 1000000000) }
   else
-    { seconds := sec_diff, nanos := nsec_diff }
+    { second := sec_diff, nano := nsec_diff }
 
 instance : HSub Instant Instant Duration where
   hSub := Instant.sub
@@ -58,14 +58,14 @@ namespace Duration
 
 /-- Returns a `Duration` representing the given number of second. -/
 def ofSeconds (second : Second.Offset) : Duration :=
-  { seconds := second, nanos := Bounded.LE.mk 0 (by decide) }
+  { second := second, nano := Bounded.LE.mk 0 (by decide) }
 
 /-- Returns a `Duration` representing the given number of minute. -/
 def ofMinutes (minute : Minute.Offset) : Duration :=
-  { seconds := minute.toSeconds * 60, nanos := Bounded.LE.mk 0 (by decide) }
+  { second := minute.toSeconds * 60, nano := Bounded.LE.mk 0 (by decide) }
 
 /-- Returns a `Duration` representing the given number of hour. -/
 def ofHours (hour : Hour.Offset) : Duration :=
-  { seconds := hour.toSeconds * 3600, nanos := Bounded.LE.mk 0 (by decide) }
+  { second := hour.toSeconds * 3600, nano := Bounded.LE.mk 0 (by decide) }
 
 end Duration

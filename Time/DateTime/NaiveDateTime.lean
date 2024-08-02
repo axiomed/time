@@ -16,25 +16,25 @@ open Date Time
 /--
 Date time format with Year, Month, Day, Hour, Minute, Seconds and Nanoseconds.
 -/
-structure DateTime where
+structure NaiveDateTime where
   date : Date.Date
   time : Time.Time
   deriving Repr, BEq
 
-namespace DateTime
+namespace NaiveDateTime
 
 /--
-Converts a `DateTime` into a `Timestamp`
+Converts a `NaiveDateTime` into a `Timestamp`
 -/
-def toTimestamp (dt : DateTime) : Timestamp :=
-  let days := dt.date.toScalar.days
+def toTimestamp (dt : NaiveDateTime) : Timestamp :=
+  let days := dt.date.toScalar.day
   let second := dt.time.toSeconds
   days.toSeconds + second
 
 /--
-Converts a UNIX `Timestamp` into a `DateTime`.
+Converts a UNIX `Timestamp` into a `NaiveDateTime`.
 -/
-def ofTimestamp (stamp : Timestamp) : DateTime := Id.run do
+def ofTimestamp (stamp : Timestamp) : NaiveDateTime := Id.run do
   let leapYearEpoch := 11017
   let daysPer400Y := 365 * 400 + 97
   let daysPer100Y := 365 * 100 + 24
@@ -111,3 +111,40 @@ def ofTimestamp (stamp : Timestamp) : DateTime := Id.run do
     date := Date.force year hmon (Day.Ordinal.ofFin (Fin.succ mday))
     time := Time.mk (hour.expandTop (by decide)) minute (second.expandTop (by decide)) 0
   }
+
+/--
+Getter for the `Year` inside of a `NaiveDataTime`
+-/
+@[inline]
+def year (dt : NaiveDateTime) : Year.Offset :=
+  dt.date.year
+/--
+Getter for the `Month` inside of a `NaiveDataTime`
+-/
+@[inline]
+def month (dt : NaiveDateTime) : Month.Ordinal :=
+  dt.date.month
+/--
+Getter for the `Day` inside of a `NaiveDataTime`
+-/
+@[inline]
+def day (dt : NaiveDateTime) : Day.Ordinal :=
+  dt.date.day
+/--
+Getter for the `Hour` inside of a `NaiveDataTime`
+-/
+@[inline]
+def hour (dt : NaiveDateTime) : Hour.Ordinal :=
+  dt.time.hour
+/--
+Getter for the `Minute` inside of a `NaiveDataTime`
+-/
+@[inline]
+def minute (dt : NaiveDateTime) : Minute.Ordinal :=
+  dt.time.minute
+/--
+Getter for the `Second` inside of a `NaiveDataTime`
+-/
+@[inline]
+def second (dt : NaiveDateTime) : Second.Ordinal :=
+  dt.time.second

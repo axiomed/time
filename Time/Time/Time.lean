@@ -9,20 +9,20 @@ import Time.Time.Basic
 namespace Time
 
 structure Time where
-  hours : Hour.Ordinal
-  minutes : Minute.Ordinal
-  seconds : Second.Ordinal
-  nanos : Nanosecond.Ordinal
+  hour : Hour.Ordinal
+  minute : Minute.Ordinal
+  second : Second.Ordinal
+  nano : Nanosecond.Ordinal
   deriving Repr, Inhabited, BEq
 
 namespace Time
 
 def toSeconds (time : Time) : Second.Offset :=
-  time.hours.toOffset.toSeconds +
-  time.minutes.toOffset.toSeconds +
-  time.seconds.toOffset
+  time.hour.toOffset.toSeconds +
+  time.minute.toOffset.toSeconds +
+  time.second.toOffset
 
 def toMinutes (time : Time) : Minute.Offset :=
-  time.hours.toOffset.toMinutes +
-  time.minutes.toOffset +
-  time.seconds.toOffset.toMinutes
+  time.hour.toOffset.toMinutes +
+  time.minute.toOffset +
+  time.second.toOffset.toMinutes
