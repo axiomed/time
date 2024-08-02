@@ -11,6 +11,7 @@ import Lean.Data.Rat
 import Time.Time.Basic
 import Time.Date.Unit.Day
 
+namespace Lean
 namespace Date
 open Lean Time
 

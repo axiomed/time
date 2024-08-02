@@ -11,6 +11,7 @@ import Time.Date.Unit.Year
 import Time.Date.Unit.WeekDay
 import Time.Date.Unit.WeekOfYear
 
+namespace Lean
 namespace Date.Day.Ordinal.OfYear
 
 @[inline]

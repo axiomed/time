@@ -6,6 +6,7 @@ Authors: Sofia Rodrigues
 prelude
 import Time.Time.Unit.Basic
 
+namespace Lean
 namespace TimeZone
 open Time
 

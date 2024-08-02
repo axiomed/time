@@ -10,6 +10,7 @@ import Time.DateTime
 import Time.TimeZone.TimeZone
 import Time.TimeZone.DateTime
 
+namespace Lean
 namespace TimeZone
 open Time Date DateTime
 

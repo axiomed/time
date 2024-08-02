@@ -7,6 +7,7 @@ prelude
 import Time.DateTime.NaiveDateTime
 import Time.DateTime.Timestamp
 
+namespace Lean
 namespace DateTime.Timestamp
 
 /--

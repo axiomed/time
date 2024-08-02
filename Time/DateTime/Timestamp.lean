@@ -8,6 +8,7 @@ import Init.Data.Int
 import Time.LessEq
 import Time.Time
 
+namespace Lean
 namespace DateTime
 open Time
 

@@ -7,8 +7,8 @@ prelude
 import Init
 import Lean.Data.Rat
 
+namespace Lean
 set_option linter.all true
-open Lean
 
 /--
 A structure representing a unit of a given ratio type `α`.

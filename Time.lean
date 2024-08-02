@@ -6,7 +6,7 @@ Authors: Sofia Rodrigues
 import Time.Time
 import Time.Date
 
-open Date Time
+open Lean.Date Lean.Time
 
-export Time (Time)
-export Date (Date)
+export Lean.Time (Time)
+export Lean.Date (Date)

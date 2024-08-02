@@ -7,6 +7,8 @@ prelude
 import Time.Bounded
 import Time.Time
 
+namespace Lean
+
 open Time
 
 /--

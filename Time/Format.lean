@@ -10,6 +10,7 @@ import Time.DateTime
 import Time.TimeZone
 import Lean.Data.Parsec
 
+namespace Lean
 namespace Format
 open Lean.Parsec Time Date TimeZone DateTime
 

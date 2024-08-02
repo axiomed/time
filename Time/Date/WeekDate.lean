@@ -9,6 +9,7 @@ import Time.Date.Unit.WeekOfYear
 import Time.Date.Scalar
 import Time.Date.Date
 
+namespace Lean
 namespace Date
 
 /--

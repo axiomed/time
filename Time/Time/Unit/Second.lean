@@ -10,8 +10,8 @@ import Time.LessEq
 import Lean.Data.Rat
 import Time.Time.Unit.Nanosecond
 
+namespace Lean
 namespace Time
-open Lean
 
 set_option linter.all true
 

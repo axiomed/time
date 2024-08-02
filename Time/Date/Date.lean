@@ -8,6 +8,7 @@ import Time.UnitVal
 import Time.Date.Basic
 import Time.Date.Scalar
 
+namespace Lean
 namespace Date
 
 /--

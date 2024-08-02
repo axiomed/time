@@ -9,8 +9,8 @@ import Time.Bounded
 import Time.LessEq
 import Lean.Data.Rat
 
+namespace Lean
 namespace Time
-open Lean
 
 set_option linter.all true
 

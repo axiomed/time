@@ -11,8 +11,8 @@ import Lean.Data.Rat
 import Time.Date.Unit.Day
 import Time.Date.Unit.Month
 
+namespace Lean
 namespace Date
-open Lean
 
 set_option linter.all true
 

@@ -7,6 +7,7 @@ prelude
 import Time.UnitVal
 import Time.Date.Basic
 
+namespace Lean
 namespace Date
 
 /--

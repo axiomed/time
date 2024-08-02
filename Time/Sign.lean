@@ -6,6 +6,7 @@ Authors: Sofia Rodrigues
 prelude
 import Time.Bounded
 
+namespace Lean
 set_option linter.all true
 
 /--

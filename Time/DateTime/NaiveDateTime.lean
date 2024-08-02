@@ -10,6 +10,7 @@ import Time.Date
 import Time.Time
 import Time.DateTime.Timestamp
 
+namespace Lean
 namespace DateTime
 open Date Time
 

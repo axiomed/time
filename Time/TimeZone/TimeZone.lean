@@ -7,6 +7,7 @@ prelude
 import Time.Time.Unit.Basic
 import Time.TimeZone.Basic
 
+namespace Lean
 namespace TimeZone
 open Time
 

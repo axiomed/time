@@ -10,6 +10,7 @@ import Time.Bounded
 import Time.LessEq
 import Lean.Data.Rat
 
+namespace Lean
 namespace Date
 open Lean Time
 
