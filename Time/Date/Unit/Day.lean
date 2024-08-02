@@ -16,6 +16,7 @@ open Lean Time
 set_option linter.all true
 
 namespace Day
+
 /--
 `Ordinal` represents a bounded value for days, which ranges between 0 and 31.
 -/
@@ -24,6 +25,9 @@ def Ordinal := Bounded.LE 1 31
 
 instance [Le 1 n] [Le n 31] : OfNat Ordinal n where
   ofNat := Bounded.LE.mk (Int.ofNat n) (And.intro (Int.ofNat_le.mpr Le.p) (Int.ofNat_le.mpr Le.p))
+
+instance { x y : Ordinal } : Decidable (x ≤ y) :=
+  dite (x.val ≤ y.val) isTrue isFalse
 
 instance : Inhabited Ordinal where default := 1
 
@@ -74,7 +78,7 @@ end Ordinal
 namespace Offset
 
 /--
-
+Convert `Day.Offset` into `Second.Offset`.
 -/
 def toSeconds (days : Offset) : Second.Offset :=
   days.mul 86400

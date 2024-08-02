@@ -15,19 +15,27 @@ relation `rel`. It includes all the integers that `rel lo val ∧ rel val hi`.
 -/
 def Bounded (rel : Int → Int → Prop) (lo : Int) (hi : Int) := { val : Int // rel lo val ∧ rel val hi}
 
-instance : LE (Bounded LE.le n m) where
+namespace Bounded
+
+@[always_inline]
+instance : LE (Bounded rel n m) where
   le l r := l.val ≤ r.val
 
-instance : LT (Bounded LE.le n m) where
+@[always_inline]
+instance : LT (Bounded rel n m) where
   lt l r := l.val < r.val
 
+@[always_inline]
 instance : Repr (Bounded rel m n) where
   reprPrec n := reprPrec n.val
 
+@[always_inline]
 instance : BEq (Bounded rel n m) where
   beq x y := (x.val = y.val)
 
-namespace Bounded
+@[always_inline]
+instance {x y : Bounded rel a b} : Decidable (x ≤ y) :=
+  dite (x.val ≤ y.val) isTrue isFalse
 
 /--
 A `Bounded` integer that the relation used is the the less-equal relation so, it includes all
@@ -163,7 +171,6 @@ def byEmod (b : Int) (i : Int) (hi : i > 0) : Bounded.LE 0 (i - 1) := by
     simp [Int.add_sub_assoc]
     exact Int.emod_lt_of_pos b hi
 
-
 /--
 Creates a new `Bounded.LE` using a the Truncating modulus of a number.
 -/
@@ -216,11 +223,10 @@ Adjust the bounds of a `Bounded` by adding a constant value to both the lower an
 -/
 @[inline]
 def add (bounded : Bounded.LE n m) (num : Int) : Bounded.LE (n + num) (m + num) := by
-  let ⟨left, right⟩ := bounded.property
   refine ⟨bounded.val + num, And.intro ?_ ?_⟩
   all_goals apply (Int.add_le_add · (Int.le_refl num))
-  · exact left
-  · exact right
+  · exact bounded.property.left
+  · exact bounded.property.right
 
 /--
 Adjust the bounds of a `Bounded` by subtracting a constant value to both the lower and upper bounds.
@@ -266,6 +272,11 @@ def expandTop (bounded : Bounded.LE lo hi) (h : hi ≤ nhi) : Bounded.LE lo nhi 
 @[inline]
 def expandBottom (bounded : Bounded.LE lo hi) (h : nlo ≤ lo) : Bounded.LE nlo hi :=
   ⟨bounded.val, And.intro (Int.le_trans h bounded.property.left) bounded.property.right⟩
+
+@[inline]
+def succ (bounded : Bounded.LE lo hi) (h : bounded.val < hi) : Bounded.LE lo hi :=
+  let left := bounded.property.left
+  ⟨bounded.val + 1, And.intro (by omega) (by omega)⟩
 
 end LE
 end Bounded

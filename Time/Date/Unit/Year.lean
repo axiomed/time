@@ -47,17 +47,17 @@ Checks if the `Year` is a Gregorian Leap Year.
 -/
 @[inline]
 def isLeap (y : Offset) : Bool :=
-  y.toInt % 4 = 0 ∧ (y.toInt % 100 ≠ 0 ∨ y.toInt % 400 = 0)
+  y.toInt.mod 4 = 0 ∧ (y.toInt.mod 100 ≠ 0 ∨ y.toInt.mod 400 = 0)
 
 /--
 Forces the day to be on the valid range.
 -/
 @[inline]
-def forceDay (year : Offset) (month : Month.Ordinal) (day : Day.Ordinal) : { x : Day.Ordinal // x.val ≤ (month.days year.isLeap).val } :=
-  let max : Day.Ordinal := month.days year.isLeap
-  if h : day.val > max.val
-    then ⟨max, Int.le_refl max.val⟩
-    else ⟨⟨day.val, day.property⟩, Int.not_lt.mp h⟩
+def valid (year : Offset) (month : Month.Ordinal) (day : Day.Ordinal) : Prop :=
+  month.valid year.isLeap day
+
+instance : Decidable (valid year month day) :=
+  dite (month.valid year.isLeap day) isTrue isFalse
 
 end Offset
 end Year
