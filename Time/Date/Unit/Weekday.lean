@@ -6,7 +6,7 @@ Authors: Sofia Rodrigues
 prelude
 import Time.UnitVal
 import Time.Bounded
-import Time.Classes
+import Time.LessEq
 import Lean.Data.Rat
 import Time.Date.Unit.Day
 import Time.Date.Unit.Month
@@ -63,6 +63,18 @@ def toNat : Weekday → Nat
   | .sun => 6
 
 /--
+Converts a `Weekday` to a `Fin`.
+-/
+def toFin : Weekday → Nat
+  | .mon => 0
+  | .tue => 1
+  | .wed => 2
+  | .thu => 3
+  | .fri => 4
+  | .sat => 5
+  | .sun => 6
+
+/--
 Converts a `Nat` to a `Option Weekday`.
 -/
 def ofNat? : Nat → Option Weekday
@@ -79,7 +91,19 @@ def ofNat? : Nat → Option Weekday
 Converts a `Nat` to a `Weekday`. Panics if the value provided is invalid.
 -/
 @[inline]
-def ofNat! (n: Nat) : Weekday :=
+def ofNat! (n : Nat) : Weekday :=
   match ofNat? n with
   | some res => res
   | none     => panic! "invalid weekday"
+
+/--
+Gets the next `Weekday`.
+-/
+def next : Weekday → Weekday
+  | .mon => .sun
+  | .tue => .mon
+  | .wed => .tue
+  | .thu => .wed
+  | .fri => .thu
+  | .sat => .fri
+  | .sun => .sat

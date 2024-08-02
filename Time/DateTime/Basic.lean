@@ -5,4 +5,4 @@ Authors: Sofia Rodrigues
 -/
 prelude
 import Init.Data.Int
-import Time.Classes
+import Time.LessEq

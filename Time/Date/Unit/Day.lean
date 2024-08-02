@@ -7,7 +7,7 @@ prelude
 import Time.Time
 import Time.UnitVal
 import Time.Bounded
-import Time.Classes
+import Time.LessEq
 import Lean.Data.Rat
 
 namespace Date
@@ -34,7 +34,7 @@ instance : Inhabited Ordinal where default := 1
 /--
 `Ordinal.OfYear` represents a bounded value for days, which ranges between 0 and 31.
 -/
-def Ordinal.OfYear (leap: Bool) := Bounded.LE 1 (.ofNat (if leap then 366 else 365))
+def Ordinal.OfYear (leap : Bool) := Bounded.LE 1 (.ofNat (if leap then 366 else 365))
 
 instance [Le 1 n] [Le n (if leap then 366 else 365)] : OfNat (Ordinal.OfYear leap) n where
   ofNat := Bounded.LE.mk (Int.ofNat n) (And.intro (Int.ofNat_le.mpr Le.p) (Int.ofNat_le.mpr Le.p))
@@ -57,7 +57,7 @@ namespace Ordinal
 /--
 Creates an `Ordinal` from a natural number, ensuring the value is within bounds.
 -/
-def ofNat (data : Nat) (h: data ≥ 1 ∧ data ≤ 31 := by decide) : Ordinal :=
+def ofNat (data : Nat) (h : data ≥ 1 ∧ data ≤ 31 := by decide) : Ordinal :=
   Bounded.LE.ofNat' data h
 
 /--

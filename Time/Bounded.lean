@@ -5,7 +5,7 @@ Authors: Sofia Rodrigues
 -/
 prelude
 import Init.Data.Int
-import Time.Classes
+import Time.LessEq
 
 set_option linter.all true in
 
@@ -192,7 +192,7 @@ def byMod (b : Int) (i : Int) (hi : 0 < i) : Bounded.LE (- (i - 1)) (i - 1) := b
   · exact Int.le_sub_one_of_lt (Int.mod_lt_of_pos b hi)
 
 /--
-Adjust the bounds of a `Bounded` by adding a constant value to both the lower and upper bounds.
+Adjust the bounds of a `Bounded` by setting the lower bound to zero and the maximum value to (m - n).
 -/
 @[inline]
 def truncate (bounded : Bounded.LE n m) : Bounded.LE 0 (m - n) := by
@@ -201,7 +201,8 @@ def truncate (bounded : Bounded.LE n m) : Bounded.LE 0 (m - n) := by
   all_goals omega
 
 /--
-Adjust the bounds of a `Bounded` by adding a constant value to both the lower and upper bounds.
+Adjust the bounds of a `Bounded` by changing the higher bound if another value `j` satisfies the same
+constraint.
 -/
 @[inline]
 def truncateTop (bounded : Bounded.LE n m) (h : bounded.val ≤ j) : Bounded.LE n j := by
@@ -210,13 +211,23 @@ def truncateTop (bounded : Bounded.LE n m) (h : bounded.val ≤ j) : Bounded.LE 
   · exact h
 
 /--
-Adjust the bounds of a `Bounded` by adding a constant value to both the lower and upper bounds.
+Adjust the bounds of a `Bounded` by changing the lower bound if another value `j` satisfies the same
+constraint.
 -/
 @[inline]
 def truncateBottom (bounded : Bounded.LE n m) (h : bounded.val ≥ j) : Bounded.LE j m := by
   refine ⟨bounded.val, And.intro ?_ ?_⟩
   · exact h
   · exact bounded.property.right
+
+/--
+Adjust the bounds of a `Bounded` by adding a constant value to both the lower and upper bounds.
+-/
+@[inline]
+def neg (bounded : Bounded.LE n m) : Bounded.LE (-m) (-n) := by
+  refine ⟨-bounded.val, And.intro ?_ ?_⟩
+  · exact Int.neg_le_neg bounded.property.right
+  · exact Int.neg_le_neg bounded.property.left
 
 /--
 Adjust the bounds of a `Bounded` by adding a constant value to both the lower and upper bounds.
@@ -229,11 +240,51 @@ def add (bounded : Bounded.LE n m) (num : Int) : Bounded.LE (n + num) (m + num) 
   · exact bounded.property.right
 
 /--
+Adjust the bounds of a `Bounded` by adding a constant value to the upper bounds.
+-/
+@[inline]
+def addTop (bounded : Bounded.LE n m) (num : Nat) : Bounded.LE n (m + num) := by
+  refine ⟨bounded.val + num, And.intro ?_ ?_⟩
+  · let h := Int.add_le_add bounded.property.left (Int.ofNat_zero_le num)
+    simp at h
+    exact h
+  · exact Int.add_le_add bounded.property.right (Int.le_refl num)
+
+/--
+Adjust the bounds of a `Bounded` by adding a constant value to the lower bounds.
+-/
+@[inline]
+def subBottom (bounded : Bounded.LE n m) (num : Nat) : Bounded.LE (n - num) m := by
+  refine ⟨bounded.val - num, And.intro ?_ ?_⟩
+  · exact Int.add_le_add bounded.property.left (Int.le_refl (-num))
+  · let h := Int.sub_le_sub bounded.property.right (Int.ofNat_zero_le num)
+    simp at h
+    exact h
+
+/--
+Adds two `Bounded` and adjust the boundaries.
+-/
+@[inline]
+def addBounds (bounded : Bounded.LE n m) (bounded₂ : Bounded.LE n m) : Bounded.LE (n + n) (m + m) := by
+  refine ⟨bounded.val + bounded₂.val, And.intro ?_ ?_⟩
+  · exact Int.add_le_add bounded.property.left bounded₂.property.left
+  · exact Int.add_le_add bounded.property.right bounded₂.property.right
+
+/--
 Adjust the bounds of a `Bounded` by subtracting a constant value to both the lower and upper bounds.
 -/
 @[inline]
 def sub (bounded : Bounded.LE n m) (num : Int) : Bounded.LE (n - num) (m - num) :=
   add bounded (-num)
+
+/--
+Adds two `Bounded` and adjust the boundaries.
+-/
+@[inline]
+def subBounds (bounded : Bounded.LE n m) (bounded₂ : Bounded.LE n m) : Bounded.LE (n - m) (m - n) := by
+  refine ⟨bounded.val - bounded₂.val, And.intro ?_ ?_⟩
+  · exact Int.sub_le_sub bounded.property.left bounded₂.property.right
+  · exact Int.sub_le_sub bounded.property.right bounded₂.property.left
 
 /--
 Adjust the bounds of a `Bounded` by applying the emod operation constraining the lower bound to 0 and
@@ -244,8 +295,7 @@ def emod (bounded : Bounded.LE n num) (num : Int) (hi : 0 < num) : Bounded.LE 0 
   byEmod bounded.val num hi
 
 /--
-Adjust the bounds of a `Bounded` by applying the emod operation constraining the lower bound to 0 and
-the upper bound to the value.
+Adjust the bounds of a `Bounded` by applying the mod operation.
 -/
 @[inline]
 def mod (bounded : Bounded.LE n num) (num : Int) (hi : 0 < num) : Bounded.LE (- (num - 1)) (num - 1) :=
@@ -255,7 +305,7 @@ def mod (bounded : Bounded.LE n num) (num : Int) (hi : 0 < num) : Bounded.LE (- 
 Adjust the bounds of a `Bounded` by applying the div operation.
 -/
 @[inline]
-def div (bounded : Bounded.LE n m) (num : Int) (h: num > 0) : Bounded.LE (n / num) (m / num) := by
+def div (bounded : Bounded.LE n m) (num : Int) (h : num > 0) : Bounded.LE (n / num) (m / num) := by
   let ⟨left, right⟩ := bounded.property
   refine ⟨bounded.val / num, And.intro ?_ ?_⟩
   apply Int.ediv_le_ediv
@@ -265,14 +315,23 @@ def div (bounded : Bounded.LE n m) (num : Int) (h: num > 0) : Bounded.LE (n / nu
     · exact h
     · exact right
 
+/--
+Expand the bottom of the bounded to a number `nhi` is `hi` is less or equal to the previous higher bound.
+-/
 @[inline]
 def expandTop (bounded : Bounded.LE lo hi) (h : hi ≤ nhi) : Bounded.LE lo nhi :=
   ⟨bounded.val, And.intro bounded.property.left (Int.le_trans bounded.property.right h)⟩
 
+/--
+Expand the bottom of the bounded to a number `nlo` if `lo` is greater or equal to the previous lower bound.
+-/
 @[inline]
 def expandBottom (bounded : Bounded.LE lo hi) (h : nlo ≤ lo) : Bounded.LE nlo hi :=
   ⟨bounded.val, And.intro (Int.le_trans h bounded.property.left) bounded.property.right⟩
 
+/--
+Adds one to the value of the bounded if the value is less than the higher bound of the bounded number.
+-/
 @[inline]
 def succ (bounded : Bounded.LE lo hi) (h : bounded.val < hi) : Bounded.LE lo hi :=
   let left := bounded.property.left

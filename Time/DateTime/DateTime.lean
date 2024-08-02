@@ -5,7 +5,7 @@ Authors: Sofia Rodrigues
 -/
 prelude
 import Init.Data.Int
-import Time.Classes
+import Time.LessEq
 import Time.Date
 import Time.Time
 import Time.DateTime.Timestamp
@@ -17,8 +17,8 @@ open Date Time
 Date time format with Year, Month, Day, Hour, Minute, Seconds and Nanoseconds.
 -/
 structure DateTime where
-  date: Date.Date
-  time: Time.Time
+  date : Date.Date
+  time : Time.Time
   deriving Repr, BEq
 
 namespace DateTime

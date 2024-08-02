@@ -11,7 +11,11 @@ open Lean
 
 set_option linter.all true
 
+/--
+Type class to check if a number `n` is less or equal than `m` in compile time and give me a proof.
+-/
 class Le (n : Nat) (m : Nat) where
+  /-- The proof that n ≤ m. -/
   p : n ≤ m
 
 instance : Le n n where

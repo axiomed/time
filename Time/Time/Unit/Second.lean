@@ -6,8 +6,9 @@ Authors: Sofia Rodrigues
 prelude
 import Time.UnitVal
 import Time.Bounded
-import Time.Classes
+import Time.LessEq
 import Lean.Data.Rat
+import Time.Time.Unit.Nanosecond
 
 namespace Time
 open Lean
@@ -31,7 +32,7 @@ instance : Inhabited Ordinal where default := 0
 `Offset` represents an offset in seconds. It is defined as an `Int`.
 -/
 def Offset : Type := UnitVal 1
-  deriving Repr, BEq, Inhabited, Add, Sub, Mul, Div, Neg
+  deriving Repr, BEq, Inhabited, Add, Sub, Mul, Div, Neg, LE, LT
 
 instance : OfNat Offset n := ⟨UnitVal.ofNat n⟩
 
@@ -41,7 +42,7 @@ namespace Ordinal
 Creates an `Ordinal` from a natural number, ensuring the value is within bounds.
 -/
 @[inline]
-def ofNat (data : Nat) (h: data ≤ 60 := by decide) : Ordinal :=
+def ofNat (data : Nat) (h : data ≤ 60 := by decide) : Ordinal :=
   Bounded.LE.ofNat data h
 
 /--
@@ -59,4 +60,13 @@ def toOffset (ordinal : Ordinal) : Offset :=
   UnitVal.ofInt ordinal.val
 
 end Ordinal
+
+namespace Offset
+
+def ofNanosecond (offset : Nanosecond.Offset) : Second.Offset × Nanosecond.Span :=
+  let seconds := offset.val.div 1000000000
+  let nanos := Bounded.LE.byMod offset.val 1000000000 (by decide)
+  ⟨UnitVal.ofInt seconds, nanos⟩
+
+end Offset
 end Second

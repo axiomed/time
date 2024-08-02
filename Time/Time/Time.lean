@@ -15,12 +15,14 @@ structure Time where
   nanos : Nanosecond.Ordinal
   deriving Repr, Inhabited, BEq
 
-def Time.toSeconds (time : Time) : Second.Offset :=
+namespace Time
+
+def toSeconds (time : Time) : Second.Offset :=
   time.hours.toOffset.toSeconds +
   time.minutes.toOffset.toSeconds +
   time.seconds.toOffset
 
-def Time.toMinutes (time : Time) : Minute.Offset :=
+def toMinutes (time : Time) : Minute.Offset :=
   time.hours.toOffset.toMinutes +
   time.minutes.toOffset +
   time.seconds.toOffset.toMinutes

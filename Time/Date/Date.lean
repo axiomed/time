@@ -54,7 +54,7 @@ def ofDaysSinceUNIXEpoch (days : Day.Offset) : Date :=
   let yoe := (doe - doe / 1460 + doe / 36524 - doe / 146096) / 365
   let y := yoe + era * 400
   let doy := doe - (365 * yoe + yoe / 4 - yoe / 100)
-  let mp: Int := (5 * doy + 2) / 153
+  let mp : Int := (5 * doy + 2) / 153
   let d := doy - (153 * mp + 2) / 5
   let m := mp + (if mp < 10 then 3 else -9)
   let y := y + (if m <= 2 then 1 else 0)

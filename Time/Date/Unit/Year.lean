@@ -6,7 +6,7 @@ Authors: Sofia Rodrigues
 prelude
 import Time.UnitVal
 import Time.Bounded
-import Time.Classes
+import Time.LessEq
 import Lean.Data.Rat
 import Time.Date.Unit.Day
 import Time.Date.Unit.Month

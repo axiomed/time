@@ -6,7 +6,7 @@ Authors: Sofia Rodrigues
 prelude
 import Time.UnitVal
 import Time.Bounded
-import Time.Classes
+import Time.LessEq
 import Lean.Data.Rat
 import Time.Time.Unit.Second
 
@@ -41,7 +41,7 @@ namespace Ordinal
 Creates an `Ordinal` from a natural number, ensuring the value is within bounds.
 -/
 @[inline]
-def ofNat (data : Nat) (h: data ≤ 59 := by decide) : Ordinal :=
+def ofNat (data : Nat) (h : data ≤ 59 := by decide) : Ordinal :=
   Bounded.LE.ofNat data h
 
 /--

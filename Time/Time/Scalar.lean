@@ -10,12 +10,18 @@ namespace Time
 
 structure Scalar where
   seconds : Second.Offset
+  nanos : Nanosecond.Ordinal
 
-def Scalar.toSeconds (time : Scalar) : Second.Offset :=
+namespace Scalar
+
+def toSeconds (time : Scalar) : Second.Offset :=
   time.seconds
 
-def Scalar.toMinutes (time : Scalar) : Minute.Offset :=
+def toMinutes (time : Scalar) : Minute.Offset :=
   time.seconds.toMinutes
 
-def Scalar.toHours (time : Scalar) : Hour.Offset :=
+def toHours (time : Scalar) : Hour.Offset :=
   time.seconds.toHours
+
+end Scalar
+end Time

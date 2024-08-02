@@ -6,7 +6,7 @@ Authors: Sofia Rodrigues
 prelude
 import Time.UnitVal
 import Time.Bounded
-import Time.Classes
+import Time.LessEq
 import Lean.Data.Rat
 import Time.Time.Basic
 import Time.Date.Unit.Day
@@ -53,7 +53,7 @@ namespace Ordinal
 Creates an `Ordinal` from a natural number, ensuring the value is within bounds.
 -/
 @[inline]
-def ofNat (data : Nat) (h: data ≥ 1 ∧ data ≤ 12 := by decide) : Ordinal :=
+def ofNat (data : Nat) (h : data ≥ 1 ∧ data ≤ 12 := by decide) : Ordinal :=
   Bounded.LE.ofNat' data h
 
 /--
@@ -158,7 +158,7 @@ def ofOrdinal (ordinal : Day.Ordinal.OfYear leap) : { val : Month.Ordinal × Day
     let month := Month.Ordinal.ofFin idx.succ
     let ⟨days, valid⟩ := days leap month
 
-    if h: cumulative.val < ordinal.val ∧ ordinal.val ≤ cumulative.val + days.val then
+    if h : cumulative.val < ordinal.val ∧ ordinal.val ≤ cumulative.val + days.val then
       let bounded :=
         Bounded.LE.mk ordinal.val h |>.sub ↑↑cumulative
       let bounded : Bounded.LE 1 days.val := by

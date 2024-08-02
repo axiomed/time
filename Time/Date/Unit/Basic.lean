@@ -14,7 +14,7 @@ import Time.Date.Unit.WeekOfYear
 namespace Date.Day.Ordinal.OfYear
 
 @[inline]
-def toMonthAndDay (year: Year.Offset) (ordinal : OfYear year.isLeap) : { val : Month.Ordinal × Ordinal // Year.Offset.valid year (Prod.fst val) (Prod.snd val) } :=
+def toMonthAndDay (year : Year.Offset) (ordinal : OfYear year.isLeap) : { val : Month.Ordinal × Ordinal // Year.Offset.valid year (Prod.fst val) (Prod.snd val) } :=
   Month.Ordinal.ofOrdinal ordinal
 
 end Date.Day.Ordinal.OfYear
