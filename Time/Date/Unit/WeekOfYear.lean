@@ -33,7 +33,7 @@ instance : Inhabited Ordinal where default := 1
 `Offset` represents an offset in weeks. It is defined as an `Int`.
 -/
 def Offset : Type := UnitVal (86400 * 7)
-  deriving Repr, BEq, Inhabited, Add, Sub, Mul, Div, Neg, LE, LT
+  deriving Repr, BEq, Inhabited, Add, Sub, Mul, Div, Neg, LE, LT, ToString
 
 instance : OfNat Offset n := ⟨UnitVal.ofNat n⟩
 

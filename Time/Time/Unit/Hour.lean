@@ -32,7 +32,7 @@ instance : Inhabited Ordinal where default := 0
 `Offset` represents an offset in hour. It is defined as an `Int`.
 -/
 def Offset : Type := UnitVal 3600
-  deriving Repr, BEq, Inhabited, Add, Sub, Mul, Div, Neg
+  deriving Repr, BEq, Inhabited, Add, Sub, Mul, Div, Neg, ToString
 
 instance : OfNat Offset n := ⟨UnitVal.ofNat n⟩
 

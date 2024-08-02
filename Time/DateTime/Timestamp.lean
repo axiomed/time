@@ -19,3 +19,6 @@ def Timestamp := Second.Offset
 
 instance : OfNat Timestamp n where
   ofNat := UnitVal.ofNat n
+
+instance : HAdd Timestamp Second.Offset Timestamp where
+  hAdd x y := UnitVal.add x y

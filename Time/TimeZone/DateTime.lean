@@ -21,15 +21,21 @@ structure DateTime (tz : TimeZone) where
   date : NaiveDateTime
   deriving Repr, BEq
 
-def ZonedDateTime := Sigma DateTime
-
 namespace DateTime
 
 /--
 Creates a new DateTime out of a `Timestamp`
 -/
 def ofTimestamp (tm : Timestamp) (tz : TimeZone) : DateTime tz :=
+  let date := (tm + tz.toSeconds).toNaiveDateTime
+  DateTime.mk tm date
 
+/--
+Creates a new DateTime out of a `NaiveDateTime`
+-/
+def ofNaiveDateTime (date : NaiveDateTime) (tz : TimeZone) : DateTime tz :=
+  let tm := date.toTimestamp
+  DateTime.mk tm date
 
 /--
 Getter for the `Year` inside of a `DateTime`
@@ -72,3 +78,10 @@ Getter for the `Second` inside of a `DateTime`
 @[inline]
 def second (dt : DateTime tz) : Second.Ordinal :=
   dt.date.second
+
+/--
+Gets the `Weekday` of a DateTime.
+-/
+@[inline]
+def weekday (dt : DateTime tz) : Weekday :=
+  dt.date.date.weekday

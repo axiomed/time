@@ -30,7 +30,7 @@ instance : Inhabited Ordinal where default := 1
 `Offset` represents an offset in months. It is defined as an `Int`.
 -/
 def Offset : Type := Int
-  deriving Repr, BEq, Inhabited, Add, Sub, Mul, Div, Neg
+  deriving Repr, BEq, Inhabited, Add, Sub, Mul, Div, Neg, ToString
 
 instance : OfNat Offset n := ⟨Int.ofNat n⟩
 

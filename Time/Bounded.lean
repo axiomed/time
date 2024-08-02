@@ -72,11 +72,30 @@ def mk (val : Int) (proof : lo ≤ val ∧ val ≤ hi) : Bounded.LE lo hi :=
   ⟨val, proof⟩
 
 /--
+Creates a new `Bounded` integer.
+-/
+@[inline]
+def ofInt { lo hi : Int } (val : Int) : Option (Bounded.LE lo hi) :=
+  if h : lo ≤ val ∧ val ≤ hi
+    then some ⟨val, h⟩
+    else none
+
+/--
 Convert a `Nat` to a `Bounded.LE`.
 -/
 @[inline]
 def ofNat (val : Nat) (h : val ≤ hi) : Bounded.LE 0 hi :=
   Bounded.mk val (And.intro (Int.ofNat_zero_le val) (Int.ofNat_le.mpr h))
+
+/--
+Convert a `Nat` to a `Bounded.LE` if it checks.
+-/
+@[inline]
+def ofNat? { hi : Nat } (val : Nat) : Option (Bounded.LE 0 hi) :=
+  if h : val ≤ hi then
+    ofNat val h
+  else
+    none
 
 /--
 Convert a `Nat` to a `Bounded.LE` using the lower boundary too.

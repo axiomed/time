@@ -17,6 +17,8 @@ structure TimeZone where
   offset : Offset
   name : String
 
+namespace TimeZone
+
 /--
 A zeroed `Timezone` representing UTC (no offset).
 -/
@@ -40,3 +42,9 @@ Creates a `Timestamp` from a given number of second.
 -/
 def ofSeconds (name : String) (n: Second.Offset) : TimeZone :=
   TimeZone.mk (Offset.ofSeconds n) name
+
+/--
+Gets the number of seconds in a timezone offset.
+-/
+def toSeconds (tz : TimeZone) : Second.Offset :=
+  tz.offset.second

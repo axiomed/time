@@ -113,37 +113,37 @@ def ofTimestamp (stamp : Timestamp) : NaiveDateTime := Id.run do
   }
 
 /--
-Getter for the `Year` inside of a `NaiveDataTime`
+Getter for the `Year` inside of a `NaiveDateTime`
 -/
 @[inline]
 def year (dt : NaiveDateTime) : Year.Offset :=
   dt.date.year
 /--
-Getter for the `Month` inside of a `NaiveDataTime`
+Getter for the `Month` inside of a `NaiveDateTime`
 -/
 @[inline]
 def month (dt : NaiveDateTime) : Month.Ordinal :=
   dt.date.month
 /--
-Getter for the `Day` inside of a `NaiveDataTime`
+Getter for the `Day` inside of a `NaiveDateTime`
 -/
 @[inline]
 def day (dt : NaiveDateTime) : Day.Ordinal :=
   dt.date.day
 /--
-Getter for the `Hour` inside of a `NaiveDataTime`
+Getter for the `Hour` inside of a `NaiveDateTime`
 -/
 @[inline]
 def hour (dt : NaiveDateTime) : Hour.Ordinal :=
   dt.time.hour
 /--
-Getter for the `Minute` inside of a `NaiveDataTime`
+Getter for the `Minute` inside of a `NaiveDateTime`
 -/
 @[inline]
 def minute (dt : NaiveDateTime) : Minute.Ordinal :=
   dt.time.minute
 /--
-Getter for the `Second` inside of a `NaiveDataTime`
+Getter for the `Second` inside of a `NaiveDateTime`
 -/
 @[inline]
 def second (dt : NaiveDateTime) : Second.Ordinal :=

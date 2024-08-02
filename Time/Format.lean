@@ -6,10 +6,12 @@ Authors: Sofia Rodrigues
 prelude
 import Time.Date
 import Time.Time
+import Time.DateTime
+import Time.TimeZone
 import Lean.Data.Parsec
 
 namespace Format
-open Lean.Parsec Time Date
+open Lean.Parsec Time Date TimeZone DateTime
 
 private inductive Modifier
   | YYYY
@@ -20,7 +22,6 @@ private inductive Modifier
   | M
   | DD
   | D
-  | d
   | EEEE
   | EEE
   | hh
@@ -67,7 +68,6 @@ private def parseModifier : Lean.Parsec Modifier
   <|> pstring "M" *> pure .M
   <|> pstring "DD" *> pure .DD
   <|> pstring "D" *> pure .D
-  <|> pstring "d" *> pure .d
   <|> pstring "EEEE" *> pure .EEEE
   <|> pstring "EEE" *> pure .EEE
   <|> pstring "hh" *> pure .hh
@@ -159,35 +159,253 @@ private def dayOfWeek (day: Weekday) : String :=
   | .fri => "Friday"
   | .sat => "Saturday"
 
+private def leftPad (n : Nat) (a : Char) (s : String) : String :=
+  "".pushn a (n - s.length) ++ s
+
 private def formatWithDate (date : ZonedDateTime) : Modifier → String
-  | .YYYY  => s!"{leftPad 4 '0' (toString date.data.date.year)}"
-  | .YY    => s!"{leftPad 2 '0' (toString $ date.data.date.year.toNat % 100)}"
-  | .MMMM  => unabbrevMonth date.data.date.month
-  | .MMM   => abbrevMonth date.data.date.month
-  | .MM    => s!"{leftPad 2 '0' (toString $ date.data.date.month.toNat)}"
-  | .M     => s!"{date.data.date.month.toNat}"
-  | .DD    => s!"{leftPad 2 '0' (toString $ date.data.date.day.toNat)}"
-  | .D     => s!"{date.data.date.day.toNat}"
-  | .d     => s!"{leftPad 2 ' ' $ toString date.data.date.day.toNat}"
+  | .YYYY  => s!"{leftPad 4 '0' (toString date.year)}"
+  | .YY    => s!"{leftPad 2 '0' (toString $ date.year.toNat % 100)}"
+  | .MMMM  => unabbrevMonth date.month
+  | .MMM   => abbrevMonth date.month
+  | .MM    => s!"{leftPad 2 '0' (toString $ date.month.toNat)}"
+  | .M     => s!"{date.month.toNat}"
+  | .DD    => s!"{leftPad 2 '0' (toString $ date.day.toNat)}"
+  | .D     => s!"{date.day.toNat}"
   | .EEEE  => dayOfWeek date.weekday
   | .EEE   => abbrevDayOfWeek date.weekday
-  | .hh    => s!"{leftPad 2 '0' (toString date.data.time.hour.toNat)}"
-  | .h     => s!"{date.data.time.hour.toNat}"
-  | .HH    => let hour := date.data.time.hour.val % 12; if hour == 0 then "12" else s!"{leftPad 2 '0' $ toString hour}"
-  | .H     => let hour := date.data.time.hour.val % 12; if hour == 0 then "12" else s!"{hour}"
-  | .AA    => if date.data.time.hour.toNat < 12 then "AM" else "PM"
-  | .aa    => if date.data.time.hour.toNat < 12 then "am" else "pm"
-  | .mm    => s!"{leftPad 2 '0' $ toString date.data.time.minute.toNat}"
-  | .m     => s!"{date.data.time.minute.toNat}"
-  | .ss    => s!"{leftPad 2 '0' $ toString date.data.time.second.toNat}"
-  | .s     => s!"{date.data.time.second.toNat}"
+  | .hh    => s!"{leftPad 2 '0' (toString date.hour.toNat)}"
+  | .h     => s!"{date.hour.toNat}"
+  | .HH    => let hour := date.hour.val % 12; if hour == 0 then "12" else s!"{leftPad 2 '0' $ toString hour}"
+  | .H     => let hour := date.hour.val % 12; if hour == 0 then "12" else s!"{hour}"
+  | .AA    => if date.hour.toNat < 12 then "AM" else "PM"
+  | .aa    => if date.hour.toNat < 12 then "am" else "pm"
+  | .mm    => s!"{leftPad 2 '0' $ toString date.minute.toNat}"
+  | .m     => s!"{date.minute.toNat}"
+  | .ss    => s!"{leftPad 2 '0' $ toString date.second.toNat}"
+  | .s     => s!"{date.second.toNat}"
   | .ZZZZZ => date.offset.toIsoString true
   | .ZZZZ  => date.offset.toIsoString false
-  | .ZZZ   => if date.offset.second = 0 then "UTC" else date.offset.toIsoString false
-  | .Z     => if date.offset.second = 0 then "Z" else date.offset.toIsoString true
-  | .str s => s
-  where
-    leftPad (n : Nat) (a : Char) (s : String) : String :=
-      "".pushn a (n - s.length) ++ s
+  | .ZZZ   => if date.offset.second.val = 0 then "UTC" else date.offset.toIsoString false
+  | .Z     => if date.offset.second.val = 0 then "Z" else date.offset.toIsoString true
+
+private def formatPartWithDate (date : ZonedDateTime) : FormatPart → String
+  | .string s => s
+  | .modifier p t => leftPad p ' ' (formatWithDate date t)
 
 -- Parser
+
+@[simp]
+private def SingleFormatType : Modifier → Type
+  | .YYYY => Year.Offset
+  | .YY => Year.Offset
+  | .MMMM => Month.Ordinal
+  | .MMM => Month.Ordinal
+  | .MM => Month.Ordinal
+  | .M => Month.Ordinal
+  | .DD => Day.Ordinal
+  | .D => Day.Ordinal
+  | .EEEE => Weekday
+  | .EEE => Weekday
+  | .hh => Hour.Ordinal
+  | .h => Hour.Ordinal
+  | .HH => Hour.Ordinal
+  | .H => Hour.Ordinal
+  | .AA => HourMarker
+  | .aa => HourMarker
+  | .mm => Minute.Ordinal
+  | .m => Minute.Ordinal
+  | .ss => Second.Ordinal
+  | .s => Second.Ordinal
+  | .ZZZZZ => Offset
+  | .ZZZZ => Offset
+  | .ZZZ => Offset
+  | .Z => Offset
+
+private def transform (n: β → Option α) (p: Lean.Parsec β) : Lean.Parsec α := do
+  let res ← p
+  match n res with
+  | some n => pure n
+  | none => fail "cannot parse"
+
+private def parseMonth : Lean.Parsec Month.Ordinal
+  :=  (pstring "Jan" *> pure 1)
+  <|> (pstring "Feb" *> pure 2)
+  <|> (pstring "Mar" *> pure 3)
+  <|> (pstring "Apr" *> pure 4)
+  <|> (pstring "May" *> pure 5)
+  <|> (pstring "Jun" *> pure 6)
+  <|> (pstring "Jul" *> pure 7)
+  <|> (pstring "Aug" *> pure 8)
+  <|> (pstring "Sep" *> pure 9)
+  <|> (pstring "Oct" *> pure 10)
+  <|> (pstring "Nov" *> pure 11)
+  <|> (pstring "Dec" *> pure 12)
+
+private def parseMonthUnabbrev : Lean.Parsec Month.Ordinal
+  :=  (pstring "January" *> pure 1)
+  <|> (pstring "February" *> pure 2)
+  <|> (pstring "March" *> pure 3)
+  <|> (pstring "April" *> pure 4)
+  <|> (pstring "May" *> pure 5)
+  <|> (pstring "June" *> pure 6)
+  <|> (pstring "July" *> pure 7)
+  <|> (pstring "August" *> pure 8)
+  <|> (pstring "September" *> pure 9)
+  <|> (pstring "October" *> pure 10)
+  <|> (pstring "November" *> pure 11)
+  <|> (pstring "December" *> pure 12)
+
+private def parseWeekday : Lean.Parsec Weekday
+  :=  (pstring "Mon" *> pure Weekday.mon)
+  <|> (pstring "Tue" *> pure Weekday.tue)
+  <|> (pstring "Wed" *> pure Weekday.wed)
+  <|> (pstring "Thu" *> pure Weekday.thu)
+  <|> (pstring "Fri" *> pure Weekday.fri)
+  <|> (pstring "Sat" *> pure Weekday.sat)
+  <|> (pstring "Sun" *> pure Weekday.sun)
+
+private def parseWeekdayUnnabrev : Lean.Parsec Weekday
+  :=  (pstring "Monday" *> pure Weekday.mon)
+  <|> (pstring "Tuesday" *> pure Weekday.tue)
+  <|> (pstring "Wednesday" *> pure Weekday.wed)
+  <|> (pstring "Thursday" *> pure Weekday.thu)
+  <|> (pstring "Friday" *> pure Weekday.fri)
+  <|> (pstring "Saturday" *> pure Weekday.sat)
+  <|> (pstring "Sunday" *> pure Weekday.sun)
+
+private def parserUpperHourMarker : Lean.Parsec HourMarker
+  :=  (pstring "AM" *> pure HourMarker.am)
+  <|> (pstring "PM" *> pure HourMarker.pm)
+
+private def parserLowerHourMarker : Lean.Parsec HourMarker
+  :=  (pstring "am" *> pure HourMarker.am)
+  <|> (pstring "pm" *> pure HourMarker.pm)
+
+private def twoDigit : Lean.Parsec Int := do
+  let digit1 ← Lean.Parsec.digit
+  let digit2 ← Lean.Parsec.digit
+  return String.toNat! s!"{digit1}{digit2}"
+
+private def parseYearTwo : Lean.Parsec Int :=do
+  let year ← twoDigit
+  return if year < 70 then 2000 + year else 1900 + year
+
+private def timeOffset (colon: Bool) : Lean.Parsec Offset := do
+  let sign : Int ← (pstring "-" *> pure (-1)) <|> (pstring "+" *> pure 1)
+  let hour ← twoDigit
+  if colon then let _ ← pstring ":"
+  let minutes ← twoDigit
+  let res := (hour * 3600 + minutes * 60) * sign
+  pure (Offset.ofSeconds (UnitVal.ofInt res))
+
+private def timeOrUTC (utcString: String) (colon: Bool) : Lean.Parsec Offset :=
+  (pstring utcString *> pure Offset.zero) <|> timeOffset colon
+
+private def number : Lean.Parsec Nat := do
+  String.toNat! <$> Lean.Parsec.many1Chars Lean.Parsec.digit
+
+private def singleDigit : Lean.Parsec Nat := do
+  let digit1 ← Lean.Parsec.digit
+  return String.toNat! s!"{digit1}"
+
+private def fourDigit : Lean.Parsec Int := do
+  let digit1 ← Lean.Parsec.digit
+  let digit2 ← Lean.Parsec.digit
+  let digit3 ← Lean.Parsec.digit
+  let digit4 ← Lean.Parsec.digit
+  return String.toNat! s!"{digit1}{digit2}{digit3}{digit4}"
+
+private def parserWithFormat : (typ: Modifier) → Lean.Parsec (SingleFormatType typ)
+  | .YYYY => fourDigit
+  | .YY => parseYearTwo
+  | .MMMM => parseMonthUnabbrev
+  | .MMM => parseMonth
+  | .MM => transform Bounded.LE.ofInt twoDigit
+  | .M => transform Bounded.LE.ofInt number
+  | .DD => transform Bounded.LE.ofInt twoDigit
+  | .D => transform Bounded.LE.ofInt number
+  | .EEEE => parseWeekdayUnnabrev
+  | .EEE => parseWeekday
+  | .hh => transform Bounded.LE.ofInt twoDigit
+  | .h => transform Bounded.LE.ofInt number
+  | .HH => transform Bounded.LE.ofInt twoDigit
+  | .H => transform Bounded.LE.ofInt number
+  | .AA => parserUpperHourMarker
+  | .aa => parserLowerHourMarker
+  | .mm => transform Bounded.LE.ofInt twoDigit
+  | .m => transform Bounded.LE.ofInt number
+  | .ss => transform Bounded.LE.ofInt twoDigit
+  | .s => transform Bounded.LE.ofInt number
+  | .ZZZZZ => timeOffset true
+  | .ZZZZ => timeOffset false
+  | .ZZZ => timeOrUTC "UTC" false
+  | .Z => timeOrUTC "Z" true
+
+structure DateBuilder where
+  tz : Offset := Offset.zero
+  year : Year.Offset := 0
+  month : Month.Ordinal := 1
+  day : Day.Ordinal := 1
+  hour : Hour.Ordinal := 0
+  minute : Minute.Ordinal := 0
+  second : Second.Ordinal := 0
+
+def DateBuilder.build (builder : DateBuilder) : ZonedDateTime :=
+  {
+    fst := TimeZone.mk builder.tz "GMT"
+    snd := DateTime.ofNaiveDateTime {
+      date := Date.force builder.year builder.month builder.day
+      time := Time.mk builder.hour builder.minute builder.second 0
+    } (TimeZone.mk builder.tz "GMT")
+  }
+
+private def addDataInDateTime (data : DateBuilder) (typ : Modifier) (value : SingleFormatType typ) : DateBuilder :=
+  match typ with
+  | .YYYY => { data with year := value }
+  | .YY => { data with year := value }
+  | .MMMM => { data with month := value }
+  | .MMM => { data with month := value }
+  | .MM => { data with month := value }
+  | .M => { data with month := value }
+  | .DD => { data with day := value }
+  | .D => { data with day := value }
+  | .EEEE => data
+  | .EEE => data
+  | .hh => { data with hour := value }
+  | .h => { data with hour := value }
+  | .HH => { data with hour := value }
+  | .H => { data with hour := value }
+  | .AA => { data with hour := HourMarker.toAbsolute! value data.hour }
+  | .aa => { data with hour := HourMarker.toAbsolute! value data.hour }
+  | .mm => { data with minute := value }
+  | .m => { data with minute := value }
+  | .ss => { data with second := value }
+  | .s => { data with second := value }
+  | .ZZZZZ => { data with tz := value }
+  | .ZZZZ => { data with tz := value }
+  | .ZZZ => { data with tz := value }
+  | .Z => { data with tz := value }
+
+private def addData (data : DateBuilder) : FormatPart → DateBuilder
+  | .string s => data
+  | .modifier _ m => addDataInDateTime data m sorry
+
+-- Internals
+
+/-
+def Format.format (x: Format) (date : ZonedDateTime) : String :=
+  x.map (formatPartWithDate date)
+  |> String.join
+
+def Formats.ISO8601 := Format.spec! "%YYYY-%MM-%DD'T'%hh:%mm:%ss'Z'"
+
+-- Tests
+
+def x : Timestamp := 1722631000
+
+def UTCM3 := (TimeZone.mk (Offset.ofSeconds (-10800)) "Brasilia")
+
+def date := ZonedDateTime.ofTimestamp x UTCM3
+
+#eval Formats.ISO8601.format date
+-/

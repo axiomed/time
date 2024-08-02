@@ -22,7 +22,7 @@ namespace Year
 `Offset` represents an offset in years. It is defined as an `Int`.
 -/
 def Offset : Type := Int
-  deriving Repr, BEq, Inhabited, Add, Sub, Mul, Div, Neg
+  deriving Repr, BEq, Inhabited, Add, Sub, Mul, Div, Neg, ToString
 
 instance : OfNat Offset n := ⟨Int.ofNat n⟩
 

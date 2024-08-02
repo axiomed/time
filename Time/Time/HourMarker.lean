@@ -23,3 +23,11 @@ def HourMarker.toAbsolute (marker : HourMarker) (time : Hour.Ordinal) (h₀ : ti
   match marker with
   | .am => time
   | .pm => Bounded.LE.mk (time.toInt + 12) (And.intro (Int.add_le_add (c := 0) time.property.left (by decide)) (Int.add_le_add_right h₀ 12))
+
+/--
+Converts a 12-hour clock time to a 24-hour clock time based on the `HourMarker` without a proof.
+-/
+def HourMarker.toAbsolute! (marker : HourMarker) (time : Hour.Ordinal) : Hour.Ordinal :=
+  match marker with
+  | .am => time
+  | .pm => Bounded.LE.ofFin (Fin.ofNat (time.val.toNat + 12))

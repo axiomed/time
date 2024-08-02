@@ -10,15 +10,15 @@ import Time.DateTime.Timestamp
 namespace DateTime.Timestamp
 
 /--
-Converts a `NaiveDataTime` to a `Timestamp`
+Converts a `NaiveDateTime` to a `Timestamp`
 -/
 @[inline]
 def ofNaiveDateTime (naive : NaiveDateTime) : Timestamp :=
   naive.toTimestamp
 
 /--
-Converts a `Timestamp` to a `NaiveDataTime`
+Converts a `Timestamp` to a `NaiveDateTime`
 -/
 @[inline]
-def toTimestamp (timestamp : Timestamp) : NaiveDateTime :=
+def toNaiveDateTime (timestamp : Timestamp) : NaiveDateTime :=
   NaiveDateTime.ofTimestamp timestamp

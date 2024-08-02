@@ -48,7 +48,7 @@ instance : Inhabited (Ordinal.OfYear leap) where
 `Offset` represents an offset in days. It is defined as an `Int`.
 -/
 def Offset : Type := UnitVal 86400
-  deriving Repr, BEq, Inhabited, Add, Sub, Mul, Div, Neg, LE, LT
+  deriving Repr, BEq, Inhabited, Add, Sub, Mul, Div, Neg, LE, LT, ToString
 
 instance : OfNat Offset n := ⟨UnitVal.ofNat n⟩
 
