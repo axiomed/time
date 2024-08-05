@@ -148,3 +148,7 @@ Getter for the `Second` inside of a `NaiveDateTime`
 @[inline]
 def second (dt : NaiveDateTime) : Second.Ordinal :=
   dt.time.second
+
+end NaiveDateTime
+end Time
+end Std

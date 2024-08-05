@@ -140,3 +140,7 @@ instance : HAdd Date Day.Offset Date where
 
 instance : HAdd Date Scalar Date where
   hAdd date day := ofScalar (toScalar date + day)
+
+end Date
+end Time
+end Std

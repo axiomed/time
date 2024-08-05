@@ -38,3 +38,4 @@ def toHours (offset : Minute.Offset) : Hour.Offset :=
 end Minute.Offset
 
 end Time
+end Std

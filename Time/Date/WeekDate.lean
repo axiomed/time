@@ -40,3 +40,7 @@ def fromScalar (scalar : Date.Scalar) : WeekDate :=
     |>.div 7 (by decide)
     |>.add 1
   { year := year, week := week }
+
+end WeekDate
+end Time
+end Std

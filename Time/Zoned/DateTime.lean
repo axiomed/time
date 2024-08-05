@@ -107,3 +107,7 @@ Gets the `Weekday` of a DateTime.
 @[inline]
 def weekday (dt : DateTime tz) : Weekday :=
   dt.date.date.weekday
+
+end DateTime
+end Time
+end Std

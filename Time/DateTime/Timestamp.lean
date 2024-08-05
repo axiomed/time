@@ -25,3 +25,6 @@ instance : HAdd Timestamp Second.Offset Timestamp where
 
 instance : HSub Timestamp Second.Offset Timestamp where
   hSub x y := UnitVal.sub x y
+
+end Time
+end Std

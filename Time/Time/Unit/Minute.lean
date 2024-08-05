@@ -70,3 +70,5 @@ def toSeconds (val : Offset) : Second.Offset :=
 
 end Offset
 end Minute
+end Time
+end Std

@@ -61,3 +61,7 @@ def Span := Bounded.LE (-999999999) 999999999
   deriving Repr, BEq, LE, LT
 
 instance : Inhabited Span where default := Bounded.LE.mk 0 (by decide)
+
+end Nanosecond
+end Time
+end Std

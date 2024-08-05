@@ -114,3 +114,7 @@ Returns the weekday.
 @[inline]
 def weekday (zdt : ZonedDateTime) : Weekday :=
   zdt.snd.weekday
+
+end ZonedDateTime
+end Time
+end Std

@@ -52,3 +52,8 @@ Creates an `Offset` from a given number of second.
 -/
 def ofSeconds (n: Second.Offset) : Offset :=
   mk n.toHours n
+
+end Offset
+end TimeZone
+end Time
+end Std

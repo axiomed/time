@@ -78,3 +78,5 @@ def toMinutes (val : Offset) : Minute.Offset :=
 
 end Offset
 end Hour
+end Time
+end Std

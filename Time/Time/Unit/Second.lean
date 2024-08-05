@@ -60,3 +60,5 @@ def toOffset (ordinal : Ordinal) : Offset :=
 
 end Ordinal
 end Second
+end Time
+end Std
