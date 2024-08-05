@@ -8,6 +8,7 @@ import Time.UnitVal
 import Time.Bounded
 import Time.LessEq
 import Lean.Data.Rat
+import Time.Time.Unit.Millisecond
 
 namespace Std
 namespace Time
@@ -26,6 +27,23 @@ def Ordinal := Bounded.LE 0 999999999
 instance : OfNat Ordinal n where ofNat := Bounded.LE.ofFin (Fin.ofNat n)
 
 instance : Inhabited Ordinal where default := 0
+
+namespace Ordinal
+
+/--
+Convert to `Millisecond.Ordinal`
+-/
+def toMillisecond (nano : Ordinal) : Millisecond.Ordinal :=
+  nano.div 1000000 (by decide)
+
+/--
+Convert from `Millisecond.Ordinal`
+-/
+def ofMillisecond (nano : Millisecond.Ordinal) : Nanosecond.Ordinal :=
+  nano.mul_pos 1000000 (by decide)
+  |>.expandTop (by decide)
+
+end Ordinal
 
 /--
 `Offset` represents an offset in nanoseconds. It is defined as an `Int`.

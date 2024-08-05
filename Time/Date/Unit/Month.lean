@@ -128,6 +128,7 @@ def days' (leap : Bool) (month : Ordinal) : Day.Ordinal :=
 /--
 Check if the day is valid in a Month and a leap Year.
 -/
+@[inline]
 def valid (leap : Bool) (month : Month.Ordinal) (day : Day.Ordinal) : Prop :=
   day ≤ days' leap month
 
@@ -137,6 +138,7 @@ instance : Decidable (valid leap month day) :=
 /--
 Gets the number of days in a month.
 -/
+@[inline]
 def days (leap : Bool) (month : Ordinal) : { day : Day.Ordinal // valid leap month day } :=
   ⟨days' leap month, Int.le_refl ((days' leap month).val)⟩
 

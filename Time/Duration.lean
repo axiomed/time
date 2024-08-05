@@ -57,15 +57,21 @@ end Instant
 
 namespace Duration
 
-/-- Returns a `Duration` representing the given number of second. -/
+/--
+Returns a `Duration` representing the given number of second.
+-/
 def ofSeconds (second : Second.Offset) : Duration :=
   { second := second, nano := Bounded.LE.mk 0 (by decide) }
 
-/-- Returns a `Duration` representing the given number of minute. -/
+/--
+Returns a `Duration` representing the given number of minute.
+-/
 def ofMinutes (minute : Minute.Offset) : Duration :=
   { second := minute.toSeconds * 60, nano := Bounded.LE.mk 0 (by decide) }
 
-/-- Returns a `Duration` representing the given number of hour. -/
+/--
+Returns a `Duration` representing the given number of hour.
+-/
 def ofHours (hour : Hour.Offset) : Duration :=
   { second := hour.toSeconds * 3600, nano := Bounded.LE.mk 0 (by decide) }
 

@@ -13,11 +13,12 @@ namespace Time
 /--
 Represents a timezone offset with an hour and second component.
 -/
-structure Offset where
+structure TimeZone.Offset where
   hour: Hour.Offset
   second: Second.Offset
   deriving Repr, Inhabited
 
+namespace TimeZone
 namespace Offset
 
 /--

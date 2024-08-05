@@ -10,11 +10,11 @@ import Time.Time.Unit.Minute
 import Time.Time.Unit.Second
 import Time.Time.Unit.Nanosecond
 
-set_option linter.all true
-
 namespace Std
 namespace Time
 namespace Second.Offset
+
+set_option linter.all true
 
 /-- Convert `Second.Offset` to `Minute.Offset` -/
 @[inline]

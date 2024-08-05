@@ -16,6 +16,9 @@ open Time Date DateTime
 
 def ZonedDateTime := Sigma DateTime
 
+instance : CoeDep ZonedDateTime d (DateTime d.fst) where
+  coe := d.snd
+
 instance : Inhabited ZonedDateTime where
   default := ⟨Inhabited.default, Inhabited.default⟩
 
@@ -96,7 +99,7 @@ def second (zdt : ZonedDateTime) : Second.Ordinal :=
 Getter for the `TimeZone.Offset` inside of a `ZonedDateTime`
 -/
 @[inline]
-def offset (zdt : ZonedDateTime) : Offset :=
+def offset (zdt : ZonedDateTime) : TimeZone.Offset :=
   zdt.fst.offset
 /--
 Getter for the `TimeZone.Offset` inside of a `ZonedDateTime`

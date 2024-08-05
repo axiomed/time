@@ -13,10 +13,9 @@ import Time.Time.Unit.Second
 
 namespace Std
 namespace Time
+namespace Hour
 
 set_option linter.all true
-
-namespace Hour
 
 /--
 `Ordinal` represents a bounded value for hour, which ranges between 0 and 23.

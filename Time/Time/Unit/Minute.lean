@@ -12,10 +12,9 @@ import Time.Time.Unit.Second
 
 namespace Std
 namespace Time
+namespace Minute
 
 set_option linter.all true
-
-namespace Minute
 
 /--
 `Ordinal` represents a bounded value for minute, which ranges between 0 and 59.

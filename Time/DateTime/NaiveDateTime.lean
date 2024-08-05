@@ -19,7 +19,7 @@ Date time format with Year, Month, Day, Hour, Minute, Seconds and Nanoseconds.
 structure NaiveDateTime where
   date : Date
   time : Time
-  deriving Repr, BEq, Inhabited
+  deriving Repr, Inhabited
 
 namespace NaiveDateTime
 

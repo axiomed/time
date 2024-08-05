@@ -8,6 +8,7 @@ import Init
 import Lean.Data.Rat
 
 namespace Std
+
 set_option linter.all true
 
 /--

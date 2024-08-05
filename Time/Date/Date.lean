@@ -19,7 +19,7 @@ structure Date where
   month : Month.Ordinal
   day : Day.Ordinal
   valid : year.valid month day
-  deriving Repr, BEq
+  deriving Repr
 
 namespace Date
 

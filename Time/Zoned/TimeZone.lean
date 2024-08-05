@@ -14,7 +14,7 @@ namespace Time
 An enumeration representing different time zones.
 -/
 structure TimeZone where
-  offset : Offset
+  offset : TimeZone.Offset
   name : String
   deriving Inhabited
 

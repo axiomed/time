@@ -12,10 +12,9 @@ import Time.Time.Unit.Nanosecond
 
 namespace Std
 namespace Time
+namespace Second
 
 set_option linter.all true
-
-namespace Second
 
 /--
 `Ordinal` represents a bounded value for second, which ranges between 0 and 60.

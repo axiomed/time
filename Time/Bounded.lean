@@ -324,6 +324,23 @@ def mod (bounded : Bounded.LE n num) (num : Int) (hi : 0 < num) : Bounded.LE (- 
   byMod bounded.val num hi
 
 /--
+Adjust the bounds of a `Bounded` by applying the multiplication operation with a positive number.
+-/
+@[inline]
+def mul_pos (bounded : Bounded.LE n m) (num : Int) (h : num ≥ 0) : Bounded.LE (n * num) (m * num) := by
+  refine ⟨bounded.val * num, And.intro ?_ ?_⟩
+  · exact Int.mul_le_mul_of_nonneg_right bounded.property.left h
+  · exact Int.mul_le_mul_of_nonneg_right bounded.property.right h
+
+/--
+Adjust the bounds of a `Bounded` by applying the multiplication operation with a positive number.
+-/
+@[inline]
+def mul_neg (bounded : Bounded.LE n m) (num : Int) (h : num ≤ 0) : Bounded.LE (m * num) (n * num) := by
+  refine ⟨bounded.val * num, And.intro ?_ ?_⟩
+  · exact Int.mul_le_mul_of_nonpos_right bounded.property.right h
+  · exact Int.mul_le_mul_of_nonpos_right bounded.property.left h
+/--
 Adjust the bounds of a `Bounded` by applying the div operation.
 -/
 @[inline]

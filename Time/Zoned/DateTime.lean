@@ -19,7 +19,7 @@ structure DateTime (tz : TimeZone) where
   private mk ::
   timestamp : Timestamp
   date : NaiveDateTime
-  deriving Repr, BEq, Inhabited
+  deriving Repr, Inhabited
 
 namespace DateTime
 
@@ -95,6 +95,12 @@ Getter for the `Second` inside of a `DateTime`
 def second (dt : DateTime tz) : Second.Ordinal :=
   dt.date.second
 
+/--
+Getter for the `Milliseconds` inside of a `DateTime`
+-/
+@[inline]
+def milliseconds (dt : DateTime tz) : Millisecond.Ordinal :=
+  dt.date.time.nano.toMillisecond
 /--
 Gets the `Weekday` of a DateTime.
 -/

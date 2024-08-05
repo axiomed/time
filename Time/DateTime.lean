@@ -11,6 +11,8 @@ namespace Std
 namespace Time
 namespace Timestamp
 
+set_option linter.all true
+
 /--
 Converts a `NaiveDateTime` to a `Timestamp`
 -/

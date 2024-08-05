@@ -8,14 +8,17 @@ import Time.UnitVal
 import Time.Date.Unit.Day
 import Time.Date.Unit.Month
 import Time.Date.Unit.Year
-import Time.Date.Unit.WeekDay
+import Time.Date.Unit.Weekday
 import Time.Date.Unit.WeekOfYear
 
 namespace Std
 namespace Time.Day.Ordinal.OfYear
 
+/--
+Conevrts a `Year` and a `Ordinal.OfYear` to a valid day and month.
+-/
 @[inline]
-def toMonthAndDay (year : Year.Offset) (ordinal : OfYear year.isLeap) : { val : Month.Ordinal × Ordinal // Year.Offset.valid year (Prod.fst val) (Prod.snd val) } :=
+def toMonthAndDay (year : Year.Offset) (ordinal : OfYear year.isLeap) : { val : Month.Ordinal × Day.Ordinal // Year.Offset.valid year (Prod.fst val) (Prod.snd val) } :=
   Month.Ordinal.ofOrdinal ordinal
 
 end Time.Day.Ordinal.OfYear
