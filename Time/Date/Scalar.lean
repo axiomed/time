@@ -7,7 +7,8 @@ prelude
 import Time.UnitVal
 import Time.Date.Basic
 
-namespace Lean
+namespace Std
+namespace Time
 namespace Date
 
 /--
@@ -63,3 +64,4 @@ def ofOffset (offset : Day.Offset) : Scalar :=
 
 end Scalar
 end Date
+end Time

@@ -5,10 +5,10 @@ Authors: Sofia Rodrigues
 -/
 prelude
 import Time.Time.Unit.Basic
+import Time.Sign
 
-namespace Lean
-namespace TimeZone
-open Time
+namespace Std
+namespace Time
 
 /--
 Represents a timezone offset with an hour and second component.
@@ -25,7 +25,8 @@ Converts an `Offset` to a string in ISO 8601 format. The `colon` parameter deter
 and minute components are separated by a colon (e.g., "+01:00" or "+0100").
 -/
 def toIsoString (offset : Offset) (colon : Bool) : String :=
-  let (sign, time) := if offset.second.val ≥ 0 then ("+", offset.second) else ("-", -offset.second)
+  let sign := Sign.ofInt offset.second.val
+  let time := offset.second.apply sign
   let hour : Hour.Offset := time.div 3600
   let minute := Int.div (Int.mod time.val 3600) 60
   let hourStr := if hour.val < 10 then s!"0{hour.val}" else toString hour.val

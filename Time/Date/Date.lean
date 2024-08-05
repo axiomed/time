@@ -8,8 +8,8 @@ import Time.UnitVal
 import Time.Date.Basic
 import Time.Date.Scalar
 
-namespace Lean
-namespace Date
+namespace Std
+namespace Time
 
 /--
 Date in YMD format.
@@ -29,6 +29,9 @@ Force the date to be valid.
 def force (year : Year.Offset) (month : Month.Ordinal) (day : Day.Ordinal) : Date :=
   let ⟨day, valid⟩ := month.forceDay year.isLeap day
   Date.mk year month day valid
+
+instance : Inhabited Date where
+  default := force 0 1 1
 
 /--
 Creates a new `Date` using YMD.
@@ -117,13 +120,13 @@ def toDaysSinceUNIXEpoch (date : Date) : Day.Offset :=
 /--
 Returns the `Scalar` starting from the UNIX epoch.
 -/
-def toScalar (date : Date) : Scalar :=
+def toScalar (date : Date) : Date.Scalar :=
   ⟨toDaysSinceUNIXEpoch date⟩
 
 /--
 Creates a new `Date` from a `Scalar` that begins on the epoch.
 -/
-def ofScalar (scalar : Scalar) : Date :=
+def ofScalar (scalar : Date.Scalar) : Date :=
   ofDaysSinceUNIXEpoch scalar.day
 
 /--

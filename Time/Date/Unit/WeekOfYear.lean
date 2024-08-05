@@ -11,8 +11,8 @@ import Lean.Data.Rat
 import Time.Date.Unit.Day
 import Time.Date.Unit.Month
 
-namespace Lean
-namespace Date
+namespace Std
+namespace Time
 
 set_option linter.all true
 
@@ -60,4 +60,5 @@ def toOffset (ordinal : Ordinal) : Offset :=
 end Ordinal
 
 end WeekOfYear
-end Date
+end Time
+end Std

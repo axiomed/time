@@ -7,7 +7,9 @@ prelude
 import Init.Data.Int
 import Time.LessEq
 
-namespace Lean
+namespace Std
+namespace Time
+
 set_option linter.all true in
 
 /--

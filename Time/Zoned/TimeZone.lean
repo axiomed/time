@@ -5,11 +5,10 @@ Authors: Sofia Rodrigues
 -/
 prelude
 import Time.Time.Unit.Basic
-import Time.TimeZone.Basic
+import Time.Zoned.Basic
 
-namespace Lean
-namespace TimeZone
-open Time
+namespace Std
+namespace Time
 
 /--
 An enumeration representing different time zones.
@@ -17,20 +16,21 @@ An enumeration representing different time zones.
 structure TimeZone where
   offset : Offset
   name : String
+  deriving Inhabited
 
 namespace TimeZone
 
 /--
 A zeroed `Timezone` representing UTC (no offset).
 -/
-def UTC (name : String) : TimeZone :=
-  TimeZone.mk (Offset.zero) name
+def UTC : TimeZone :=
+  TimeZone.mk (Offset.zero) "Coordinated Universal Time"
 
 /--
 A zeroed `Timezone` representing GMT (no offset).
 -/
-def GMT (name : String) : TimeZone :=
-  TimeZone.mk (Offset.zero) name
+def GMT : TimeZone :=
+  TimeZone.mk (Offset.zero) "Greenwich Mean Time"
 
 /--
 Creates a `Timestamp` from a given number of hour.

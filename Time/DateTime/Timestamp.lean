@@ -8,18 +8,20 @@ import Init.Data.Int
 import Time.LessEq
 import Time.Time
 
-namespace Lean
-namespace DateTime
-open Time
+namespace Std
+namespace Time
 
 /--
 Seconds since the UNIX Epoch.
 -/
 def Timestamp := Second.Offset
-  deriving Repr, BEq
+  deriving Repr, BEq, Inhabited
 
 instance : OfNat Timestamp n where
   ofNat := UnitVal.ofNat n
 
 instance : HAdd Timestamp Second.Offset Timestamp where
   hAdd x y := UnitVal.add x y
+
+instance : HSub Timestamp Second.Offset Timestamp where
+  hSub x y := UnitVal.sub x y

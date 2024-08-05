@@ -10,7 +10,7 @@ import Time.LessEq
 import Lean.Data.Rat
 import Time.Time.Unit.Nanosecond
 
-namespace Lean
+namespace Std
 namespace Time
 
 set_option linter.all true
@@ -60,13 +60,4 @@ def toOffset (ordinal : Ordinal) : Offset :=
   UnitVal.ofInt ordinal.val
 
 end Ordinal
-
-namespace Offset
-
-def ofNanosecond (offset : Nanosecond.Offset) : Second.Offset × Nanosecond.Span :=
-  let second := offset.val.div 1000000000
-  let nano := Bounded.LE.byMod offset.val 1000000000 (by decide)
-  ⟨UnitVal.ofInt second, nano⟩
-
-end Offset
 end Second

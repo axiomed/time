@@ -5,8 +5,5 @@ Authors: Sofia Rodrigues
 -/
 import Time.Time
 import Time.Date
-
-open Lean.Date Lean.Time
-
-export Lean.Time (Time)
-export Lean.Date (Date)
+import Time.DateTime
+import Time.Zoned

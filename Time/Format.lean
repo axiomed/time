@@ -7,13 +7,45 @@ prelude
 import Time.Date
 import Time.Time
 import Time.DateTime
-import Time.TimeZone
+import Time.Zoned
 import Lean.Data.Parsec
 
-namespace Lean
+namespace Std
+namespace Time
 namespace Format
+
 open Lean.Parsec Time Date TimeZone DateTime
 
+/--
+The `Modifier` inductive type represents various formatting options for date and time components.
+These modifiers are typically used in formatting functions to generate human-readable date and time strings.
+
+- `YYYY`: Four-digit year (e.g., 2024).
+- `YY`: Two-digit year (e.g., 24 for 2024).
+- `MMMM`: Full month name (e.g., January, February).
+- `MMM`: Abbreviated month name (e.g., Jan, Feb).
+- `MM`: Two-digit month (e.g., 01 for January).
+- `M`: One or two-digit month (e.g., 1 for January, 10 for October).
+- `DD`: Two-digit day of the month (e.g., 01, 02).
+- `D`: One or two-digit day of the month (e.g., 1, 2).
+- `EEEE`: Full name of the day of the week (e.g., Monday, Tuesday).
+- `EEE`: Abbreviated day of the week (e.g., Mon, Tue).
+- `hh`: Two-digit hour in 12-hour format (e.g., 01, 02).
+- `h`: One or two-digit hour in 12-hour format (e.g., 1, 2).
+- `HH`: Two-digit hour in 24-hour format (e.g., 13, 14).
+- `H`: One or two-digit hour in 24-hour format (e.g., 1, 2).
+- `AA`: Uppercase AM/PM indicator (e.g., AM, PM).
+- `aa`: Lowercase am/pm indicator (e.g., am, pm).
+- `mm`: Two-digit minute (e.g., 01, 02).
+- `m`: One or two-digit minute (e.g., 1, 2).
+- `ss`: Two-digit second (e.g., 01, 02).
+- `s`: One or two-digit second (e.g., 1, 2).
+- `ZZZZZ`: Full timezone offset including hours and minutes (e.g., +03:00).
+- `ZZZZ`: Timezone offset including hours and minutes without the colon (e.g., +0300).
+- `ZZZ`: Like ZZZZ but with a special case "UTC" for UTC.
+- `Z`: Like ZZZZZ but with a special case "Z" for UTC.
+- `z`: Name of the time-zone like (Brasilia Standard Time).
+-/
 private inductive Modifier
   | YYYY
   | YY
@@ -39,6 +71,7 @@ private inductive Modifier
   | ZZZZ
   | ZZZ
   | Z
+  | z
   deriving Repr
 
 /--
@@ -53,12 +86,14 @@ private inductive FormatPart
 /--
 The format of date and time string.
 -/
-abbrev Format := List FormatPart
+private abbrev FormatString := List FormatPart
 
-private def isLetter (c : Char) : Bool :=
-  (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')
+structure Format where
+  string : FormatString
+  tzAware : Bool
+  deriving Inhabited
 
-private def isNonLetter (c: Char) : Bool := ¬isLetter c
+private def isNonLetter : Char → Bool := not ∘ Char.isAlpha
 
 private def parseModifier : Lean.Parsec Modifier
   :=  pstring "YYYY" *> pure .YYYY
@@ -85,6 +120,7 @@ private def parseModifier : Lean.Parsec Modifier
   <|> pstring "ZZZZ" *> pure .ZZZZ
   <|> pstring "ZZZ" *> pure .ZZZ
   <|> pstring "Z" *> pure .Z
+  <|> pstring "z" *> pure .z
 
 private def pnumber : Lean.Parsec Nat := do
   let numbers ← manyChars digit
@@ -97,16 +133,11 @@ private def parseFormatPart : Lean.Parsec FormatPart
   <|> (pchar '\'' *>  many1Chars (satisfy (· ≠ '\'')) <* pchar '\'') <&> .string
   <|> many1Chars (satisfy (fun x => x ≠ '%' ∧ x ≠ '\'' ∧ x ≠ '\"')) <&> .string
 
-private def specParser : Lean.Parsec Format :=
+private def specParser : Lean.Parsec FormatString :=
   (Array.toList <$> Lean.Parsec.many parseFormatPart) <* eof
 
-private def specParse (s: String) : Except String Format :=
+private def specParse (s: String) : Except String FormatString :=
   specParser.run s
-
-def Format.spec! (s: String) : Format :=
-  match specParser.run s with
-  | .ok s => s
-  | .error s => panic! s
 
 -- Pretty printer
 
@@ -163,7 +194,7 @@ private def dayOfWeek (day: Weekday) : String :=
 private def leftPad (n : Nat) (a : Char) (s : String) : String :=
   "".pushn a (n - s.length) ++ s
 
-private def formatWithDate (date : ZonedDateTime) : Modifier → String
+private def formatWithDate (date : DateTime tz) : Modifier → String
   | .YYYY  => s!"{leftPad 4 '0' (toString date.year)}"
   | .YY    => s!"{leftPad 2 '0' (toString $ date.year.toNat % 100)}"
   | .MMMM  => unabbrevMonth date.month
@@ -184,12 +215,13 @@ private def formatWithDate (date : ZonedDateTime) : Modifier → String
   | .m     => s!"{date.minute.toNat}"
   | .ss    => s!"{leftPad 2 '0' $ toString date.second.toNat}"
   | .s     => s!"{date.second.toNat}"
-  | .ZZZZZ => date.offset.toIsoString true
-  | .ZZZZ  => date.offset.toIsoString false
-  | .ZZZ   => if date.offset.second.val = 0 then "UTC" else date.offset.toIsoString false
-  | .Z     => if date.offset.second.val = 0 then "Z" else date.offset.toIsoString true
+  | .ZZZZZ => tz.offset.toIsoString true
+  | .ZZZZ  => tz.offset.toIsoString false
+  | .ZZZ   => if tz.offset.second.val = 0 then "UTC" else tz.offset.toIsoString false
+  | .Z     => if tz.offset.second.val = 0 then "Z" else tz.offset.toIsoString true
+  | .z     => tz.name
 
-private def formatPartWithDate (date : ZonedDateTime) : FormatPart → String
+private def formatPartWithDate (date : DateTime z) : FormatPart → String
   | .string s => s
   | .modifier p t => leftPad p ' ' (formatWithDate date t)
 
@@ -221,6 +253,15 @@ private def SingleFormatType : Modifier → Type
   | .ZZZZ => Offset
   | .ZZZ => Offset
   | .Z => Offset
+  | .z => String
+
+private def position : Parsec Nat := λs => (ParseResult.success s (s.pos.byteIdx))
+
+private def size (data : Parsec α) : Parsec (α × Nat) := do
+  let st ← position
+  let res ← data
+  let en ← position
+  pure (res, en-st)
 
 private def transform (n: β → Option α) (p: Lean.Parsec β) : Lean.Parsec α := do
   let res ← p
@@ -341,8 +382,10 @@ private def parserWithFormat : (typ: Modifier) → Lean.Parsec (SingleFormatType
   | .ZZZZ => timeOffset false
   | .ZZZ => timeOrUTC "UTC" false
   | .Z => timeOrUTC "Z" true
+  | .z => many1Chars (satisfy (λc => c == ' ' || c.isAlpha))
 
-structure DateBuilder where
+private structure DateBuilder where
+  tzName : String := "Greenwich Mean Time"
   tz : Offset := Offset.zero
   year : Year.Offset := 0
   month : Month.Ordinal := 1
@@ -351,13 +394,13 @@ structure DateBuilder where
   minute : Minute.Ordinal := 0
   second : Second.Ordinal := 0
 
-def DateBuilder.build (builder : DateBuilder) : ZonedDateTime :=
+private def DateBuilder.build (builder : DateBuilder) : ZonedDateTime :=
   {
-    fst := TimeZone.mk builder.tz "GMT"
+    fst := TimeZone.mk builder.tz builder.tzName
     snd := DateTime.ofNaiveDateTime {
       date := Date.force builder.year builder.month builder.day
       time := Time.mk builder.hour builder.minute builder.second 0
-    } (TimeZone.mk builder.tz "GMT")
+    } (TimeZone.mk builder.tz builder.tzName)
   }
 
 private def addDataInDateTime (data : DateBuilder) (typ : Modifier) (value : SingleFormatType typ) : DateBuilder :=
@@ -386,27 +429,103 @@ private def addDataInDateTime (data : DateBuilder) (typ : Modifier) (value : Sin
   | .ZZZZ => { data with tz := value }
   | .ZZZ => { data with tz := value }
   | .Z => { data with tz := value }
+  | .z => { data with tzName := value }
 
-private def addData (data : DateBuilder) : FormatPart → DateBuilder
-  | .string s => data
-  | .modifier _ m => addDataInDateTime data m sorry
+private def formatParser (date : DateBuilder) : FormatPart → Lean.Parsec DateBuilder
+  | .modifier p mod => do
+    let spaces ← manyChars (satisfy (λc => c = '\u0009' ∨ c = '\u000a' ∨ c = '\u000d' ∨ c = '\u0020'))
+    let (data, size) ← size (parserWithFormat mod)
+    if spaces.length + size < p
+      then fail "invalid pad"
+      else pure (addDataInDateTime date mod data)
+  | .string s => do
+    skipString s
+    pure date
 
--- Internals
+-- API
 
-/-
-def Format.format (x: Format) (date : ZonedDateTime) : String :=
-  x.map (formatPartWithDate date)
+namespace Format
+
+/--
+Constructs a new `Format` specification for a date-time string. Modifiers can be combined to create
+custom formats, such as "%YYYY, %MMMM, %D". Padding can be applied by specifying a width before the
+modifier, e.g., "%10D" for a day padded to 10 characters.
+
+### Supported Modifiers:
+- `YYYY`: Four-digit year (e.g., 2024).
+- `YY`: Two-digit year (e.g., 24 for 2024).
+- `MMMM`: Full month name (e.g., January, February).
+- `MMM`: Abbreviated month name (e.g., Jan, Feb).
+- `MM`: Two-digit month (e.g., 01 for January).
+- `M`: One or two-digit month (e.g., 1 for January, 10 for October).
+- `DD`: Two-digit day of the month (e.g., 01, 02).
+- `D`: One or two-digit day of the month (e.g., 1, 2).
+- `EEEE`: Full name of the day of the week (e.g., Monday, Tuesday).
+- `EEE`: Abbreviated day of the week (e.g., Mon, Tue).
+- `hh`: Two-digit hour in 12-hour format (e.g., 01, 02).
+- `h`: One or two-digit hour in 12-hour format (e.g., 1, 2).
+- `HH`: Two-digit hour in 24-hour format (e.g., 13, 14).
+- `H`: One or two-digit hour in 24-hour format (e.g., 1, 2).
+- `AA`: Uppercase AM/PM indicator (e.g., AM, PM).
+- `aa`: Lowercase am/pm indicator (e.g., am, pm).
+- `mm`: Two-digit minute (e.g., 01, 02).
+- `m`: One or two-digit minute (e.g., 1, 2).
+- `ss`: Two-digit second (e.g., 01, 02).
+- `s`: One or two-digit second (e.g., 1, 2).
+- `ZZZZZ`: Full timezone offset with hours and minutes (e.g., +03:00).
+- `ZZZZ`: Timezone offset with hours and minutes, without the colon (e.g., +0300).
+- `ZZZ`: Like `ZZZZ`, but displays "UTC" for UTC time.
+- `Z`: Like `ZZZZZ`, but displays "Z" for UTC time.
+- `z`: Timezone name (e.g., Brasilia Standard Time).
+
+Example usage:
+- `"%YYYY-%MM-%DD %HH:%mm:%ss %ZZZZ"` → "2024-08-04 14:23:45 +0300"
+-/
+def spec (input : String) (tzAware : Bool) : Except String Format := do
+  let string ← specParser.run input
+  return ⟨string, tzAware⟩
+
+/--
+Builds a new `Format` specification for a Date-time, panics if the input string results in an error.
+-/
+def spec! (input : String) (tzAware : Bool) : Format :=
+  match specParser.run input with
+  | .ok res => ⟨res, tzAware⟩
+  | .error res => panic! res
+
+/--
+Formats the date using the format into a String.
+-/
+def format (format : Format) (date : DateTime tz) : String :=
+  let date := if format.tzAware then formatPartWithDate date else formatPartWithDate (date.convertTimeZone TimeZone.GMT)
+  format.string.map date
   |> String.join
 
-def Formats.ISO8601 := Format.spec! "%YYYY-%MM-%DD'T'%hh:%mm:%ss'Z'"
-
--- Tests
-
-def x : Timestamp := 1722631000
-
-def UTCM3 := (TimeZone.mk (Offset.ofSeconds (-10800)) "Brasilia")
-
-def date := ZonedDateTime.ofTimestamp x UTCM3
-
-#eval Formats.ISO8601.format date
+/--
+Parser for a ZonedDateTime.
 -/
+def parser (format : FormatString) : Parsec ZonedDateTime :=
+  let rec go (date : DateBuilder) (x : FormatString) : Parsec ZonedDateTime :=
+    match x with
+    | x :: xs => formatParser date x >>= (go · xs)
+    | [] => pure date.build
+  go {} format
+
+/--
+Parses the input string into a `ZoneDateTime`
+-/
+def parse (format : Format) (input : String) : Except String ZonedDateTime :=
+  Parsec.run (parser format.string) input
+
+/--
+Parses the input string into a `ZoneDateTime`, panics if its wrong
+-/
+def parse! (format : Format) (input : String) : ZonedDateTime :=
+  match Parsec.run (parser format.string) input with
+  | .ok res => res
+  | .error err => panic! err
+
+end Format
+end Format
+end Time
+end Std

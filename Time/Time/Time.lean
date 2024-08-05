@@ -6,7 +6,7 @@ Authors: Sofia Rodrigues
 prelude
 import Time.Time.Basic
 
-namespace Lean
+namespace Std
 namespace Time
 
 structure Time where

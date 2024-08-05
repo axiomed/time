@@ -11,8 +11,8 @@ import Lean.Data.Rat
 import Time.Time.Basic
 import Time.Date.Unit.Day
 
-namespace Lean
-namespace Date
+namespace Std
+namespace Time
 open Lean Time
 
 namespace Month
@@ -184,3 +184,5 @@ def ofOrdinal (ordinal : Day.Ordinal.OfYear leap) : { val : Month.Ordinal × Day
 
 end Ordinal
 end Month
+end Time
+end Std

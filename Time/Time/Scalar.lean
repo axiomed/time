@@ -6,7 +6,8 @@ Authors: Sofia Rodrigues
 prelude
 import Time.Time.Basic
 
-namespace Lean
+namespace Std
+namespace Time
 namespace Time
 
 structure Scalar where
@@ -25,4 +26,5 @@ def toHours (time : Scalar) : Hour.Offset :=
   time.second.toHours
 
 end Scalar
+end Time
 end Time

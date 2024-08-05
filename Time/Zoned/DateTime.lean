@@ -7,11 +7,10 @@ prelude
 import Time.Time
 import Time.Date
 import Time.DateTime
-import Time.TimeZone.TimeZone
+import Time.Zoned.TimeZone
 
-namespace Lean
-namespace TimeZone
-open Time Date DateTime
+namespace Std
+namespace Time
 
 /--
 It stores a `Timestamp`, a `NaiveDateTime` and a `TimeZone`
@@ -20,20 +19,36 @@ structure DateTime (tz : TimeZone) where
   private mk ::
   timestamp : Timestamp
   date : NaiveDateTime
-  deriving Repr, BEq
+  deriving Repr, BEq, Inhabited
 
 namespace DateTime
 
 /--
-Creates a new DateTime out of a `Timestamp`
+Creates a new `DateTime` out of a `Timestamp`
 -/
+@[inline]
 def ofTimestamp (tm : Timestamp) (tz : TimeZone) : DateTime tz :=
   let date := (tm + tz.toSeconds).toNaiveDateTime
   DateTime.mk tm date
 
 /--
+Creates a new `Timestamp` out of a `DateTime`
+-/
+@[inline]
+def toTimestamp (date : DateTime tz) : Timestamp :=
+  date.timestamp
+
+/--
+Changes the `TimeZone` to a new one.
+-/
+@[inline]
+def convertTimeZone (date : DateTime tz) (tz₁ : TimeZone) : DateTime tz₁ :=
+  ofTimestamp (date.toTimestamp) tz₁
+
+/--
 Creates a new DateTime out of a `NaiveDateTime`
 -/
+@[inline]
 def ofNaiveDateTime (date : NaiveDateTime) (tz : TimeZone) : DateTime tz :=
   let tm := date.toTimestamp
   DateTime.mk tm date

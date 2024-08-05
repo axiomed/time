@@ -11,8 +11,8 @@ import Lean.Data.Rat
 import Time.Date.Unit.Day
 import Time.Date.Unit.Month
 
-namespace Lean
-namespace Date
+namespace Std
+namespace Time
 
 set_option linter.all true
 
@@ -61,3 +61,5 @@ instance : Decidable (valid year month day) :=
 
 end Offset
 end Year
+end Time
+end Std

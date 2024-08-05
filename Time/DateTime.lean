@@ -7,8 +7,9 @@ prelude
 import Time.DateTime.NaiveDateTime
 import Time.DateTime.Timestamp
 
-namespace Lean
-namespace DateTime.Timestamp
+namespace Std
+namespace Time
+namespace Timestamp
 
 /--
 Converts a `NaiveDateTime` to a `Timestamp`

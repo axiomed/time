@@ -6,8 +6,12 @@ Authors: Sofia Rodrigues
 prelude
 import Init
 import Lean.Data.Rat
+import Time.Sign
 
-namespace Lean
+namespace Std
+namespace Time
+open Lean
+
 set_option linter.all true
 
 /--
@@ -73,6 +77,15 @@ def sub (u1 : UnitVal α) (u2 : UnitVal α) : UnitVal α :=
   ⟨u1.val - u2.val⟩
 
 /--
+Apply the `Sign` to a value.
+-/
+@[inline]
+def apply (u1 : UnitVal α) (sign : Sign) : UnitVal α :=
+  ⟨u1.val * sign.val⟩
+
+
+
+/--
 Converts an `Offset` to another unit type.
 -/
 def convert (val : UnitVal a) : UnitVal b :=
@@ -89,3 +102,7 @@ instance : Mul (UnitVal α) where mul x y := ⟨x.val * y.val⟩
 instance : Div (UnitVal α) where div x y := ⟨x.val / y.val⟩
 instance : Neg (UnitVal α) where neg x := ⟨-x.val⟩
 instance : ToString (UnitVal n) where toString n := toString n.val
+
+end UnitVal
+end Time
+end Std

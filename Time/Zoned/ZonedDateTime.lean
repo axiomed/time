@@ -7,14 +7,17 @@ prelude
 import Time.Time
 import Time.Date
 import Time.DateTime
-import Time.TimeZone.TimeZone
-import Time.TimeZone.DateTime
+import Time.Zoned.TimeZone
+import Time.Zoned.DateTime
 
-namespace Lean
-namespace TimeZone
+namespace Std
+namespace Time
 open Time Date DateTime
 
 def ZonedDateTime := Sigma DateTime
+
+instance : Inhabited ZonedDateTime where
+  default := ⟨Inhabited.default, Inhabited.default⟩
 
 namespace ZonedDateTime
 open DateTime
@@ -22,13 +25,29 @@ open DateTime
 /--
 Creates a new `ZonedDateTime` out of a `Timestamp`
 -/
-def ofTimestamp (tm : DateTime.Timestamp) (tz : TimeZone) : ZonedDateTime :=
+@[inline]
+def ofTimestamp (tm : Timestamp) (tz : TimeZone) : ZonedDateTime :=
   ⟨tz, DateTime.ofTimestamp tm tz⟩
+
+/--
+Creates a new `Timestamp` out of a `ZonedDateTime`
+-/
+@[inline]
+def toTimestamp (date : ZonedDateTime) : Timestamp :=
+  date.snd.toTimestamp
+
+/--
+Changes the `TimeZone` to a new one.
+-/
+@[inline]
+def convertTimeZone (date : ZonedDateTime) (tz₁ : TimeZone) : ZonedDateTime :=
+  ofTimestamp (date.toTimestamp) tz₁
 
 /--
 Creates a new `ZonedDateTime` out of a `NaiveDateTime`
 -/
-def ofNaiveDateTime (date : DateTime.NaiveDateTime) (tz : TimeZone) : ZonedDateTime :=
+@[inline]
+def ofNaiveDateTime (date : NaiveDateTime) (tz : TimeZone) : ZonedDateTime :=
   ⟨tz, DateTime.ofNaiveDateTime date tz⟩
 
 /--
@@ -79,6 +98,12 @@ Getter for the `TimeZone.Offset` inside of a `ZonedDateTime`
 @[inline]
 def offset (zdt : ZonedDateTime) : Offset :=
   zdt.fst.offset
+/--
+Getter for the `TimeZone.Offset` inside of a `ZonedDateTime`
+-/
+@[inline]
+def timezone (zdt : ZonedDateTime) : TimeZone :=
+  zdt.fst
 
 /--
 Returns the weekday.

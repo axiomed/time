@@ -9,8 +9,8 @@ import Time.Date.Unit.WeekOfYear
 import Time.Date.Scalar
 import Time.Date.Date
 
-namespace Lean
-namespace Date
+namespace Std
+namespace Time
 
 /--
 `WeekDate` represents a date using a combination of a week of the year and the year.
@@ -25,9 +25,9 @@ namespace WeekDate
 /--
 Converts a `WeekDate` to a `Scalar`.
 -/
-def toScalar (wd : WeekDate) : Scalar :=
+def toScalar (wd : WeekDate) : Date.Scalar :=
   let days := wd.year.toInt * 365 + wd.week.val * 7
-  Scalar.ofDays days
+  Date.Scalar.ofDays days
 
 /--
 Creates a `WeekDate` from a `Scalar`.

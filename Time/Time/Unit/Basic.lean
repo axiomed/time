@@ -12,7 +12,7 @@ import Time.Time.Unit.Nanosecond
 
 set_option linter.all true
 
-namespace Lean
+namespace Std
 namespace Time
 namespace Second.Offset
 

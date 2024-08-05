@@ -11,11 +11,12 @@ import Time.Date.Unit.Year
 import Time.Date.Unit.WeekDay
 import Time.Date.Unit.WeekOfYear
 
-namespace Lean
-namespace Date.Day.Ordinal.OfYear
+namespace Std
+namespace Time.Day.Ordinal.OfYear
 
 @[inline]
 def toMonthAndDay (year : Year.Offset) (ordinal : OfYear year.isLeap) : { val : Month.Ordinal × Ordinal // Year.Offset.valid year (Prod.fst val) (Prod.snd val) } :=
   Month.Ordinal.ofOrdinal ordinal
 
-end Date.Day.Ordinal.OfYear
+end Time.Day.Ordinal.OfYear
+end Std

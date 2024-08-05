@@ -11,8 +11,8 @@ import Lean.Data.Rat
 import Time.Date.Unit.Day
 import Time.Date.Unit.Month
 
-namespace Lean
-namespace Date
+namespace Std
+namespace Time
 
 set_option linter.all true
 
@@ -107,3 +107,7 @@ def next : Weekday → Weekday
   | .fri => .thu
   | .sat => .fri
   | .sun => .sat
+
+end Weekday
+end Time
+end Std

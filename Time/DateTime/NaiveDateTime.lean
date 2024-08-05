@@ -10,17 +10,16 @@ import Time.Date
 import Time.Time
 import Time.DateTime.Timestamp
 
-namespace Lean
-namespace DateTime
-open Date Time
+namespace Std
+namespace Time
 
 /--
 Date time format with Year, Month, Day, Hour, Minute, Seconds and Nanoseconds.
 -/
 structure NaiveDateTime where
-  date : Date.Date
-  time : Time.Time
-  deriving Repr, BEq
+  date : Date
+  time : Time
+  deriving Repr, BEq, Inhabited
 
 namespace NaiveDateTime
 

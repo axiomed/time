@@ -7,9 +7,8 @@ prelude
 import Time.Bounded
 import Time.Time
 
-namespace Lean
-
-open Time
+namespace Std
+namespace Time
 
 /--
 `Instant` represents a place in time with second and nanoseconds precision.
