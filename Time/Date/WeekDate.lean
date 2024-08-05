@@ -32,7 +32,7 @@ def toScalar (wd : WeekDate) : Date.Scalar :=
 /--
 Creates a `WeekDate` from a `Scalar`.
 -/
-def fromScalar (scalar : Scalar) : WeekDate :=
+def fromScalar (scalar : Date.Scalar) : WeekDate :=
   let totalDays := scalar.toDays
   let year := totalDays / 365
   let week :=
