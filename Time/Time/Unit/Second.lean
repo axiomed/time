@@ -4,15 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
 prelude
-import Time.UnitVal
-import Time.Bounded
-import Time.LessEq
+import Time.Internal
 import Lean.Data.Rat
 import Time.Time.Unit.Nanosecond
 
 namespace Std
 namespace Time
 namespace Second
+open Internal
 
 set_option linter.all true
 

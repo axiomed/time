@@ -4,6 +4,5 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
 prelude
-import Time.Zoned.Basic
 import Time.Zoned.DateTime
 import Time.Zoned.ZonedDateTime

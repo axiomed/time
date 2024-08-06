@@ -6,8 +6,8 @@ Authors: Sofia Rodrigues
 prelude
 import Time.Format.Basic
 
-open Std.Time
-
+namespace Std
+namespace Time
 namespace Formats
 
 set_option linter.all true

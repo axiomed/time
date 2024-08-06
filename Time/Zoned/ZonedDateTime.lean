@@ -4,15 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
 prelude
-import Time.Time
-import Time.Date
-import Time.DateTime
 import Time.Zoned.TimeZone
 import Time.Zoned.DateTime
 
 namespace Std
 namespace Time
-open Time Date DateTime
 
 def ZonedDateTime := Sigma DateTime
 

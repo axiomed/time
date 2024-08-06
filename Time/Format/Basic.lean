@@ -12,6 +12,7 @@ import Lean.Data.Parsec
 
 namespace Std
 namespace Time
+open Internal
 
 open Lean.Parsec Lean Time Date TimeZone DateTime
 

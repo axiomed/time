@@ -4,16 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
 prelude
-import Time.UnitVal
-import Time.Bounded
-import Time.LessEq
+import Time.Internal
 import Lean.Data.Rat
 import Time.Time.Basic
 import Time.Date.Unit.Day
 
 namespace Std
 namespace Time
-open Lean Time
+open Internal
 
 namespace Month
 /--

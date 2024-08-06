@@ -4,21 +4,23 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
 prelude
-import Time.Time.Unit.Basic
-import Time.Sign
+import Time.Time
+import Time.Internal
 
 namespace Std
 namespace Time
+namespace TimeZone
+open Internal
 
 /--
 Represents a timezone offset with an hour and second component.
 -/
-structure TimeZone.Offset where
+structure Offset where
+  private mk ::
   hour: Hour.Offset
   second: Second.Offset
   deriving Repr, Inhabited
 
-namespace TimeZone
 namespace Offset
 
 /--

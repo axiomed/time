@@ -5,6 +5,6 @@ Authors: Sofia Rodrigues
 -/
 import Time.Time
 import Time.Date
-import Time.DateTime
 import Time.Zoned
 import Time.Format
+import Time.DateTime

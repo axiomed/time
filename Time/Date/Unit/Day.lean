@@ -5,21 +5,19 @@ Authors: Sofia Rodrigues
 -/
 prelude
 import Time.Time
-import Time.UnitVal
-import Time.Bounded
-import Time.LessEq
+import Time.Internal
 import Lean.Data.Rat
 
 namespace Std
 namespace Time
-open Lean
+open Lean Internal
 
 set_option linter.all true
 
 namespace Day
 
 /--
-`Ordinal` represents a bounded value for days, which ranges between 0 and 31.
+`Ordinal` represents a bounded value for days, which ranges between 1 and 31.
 -/
 def Ordinal := Bounded.LE 1 31
   deriving Repr, BEq, LE, LT

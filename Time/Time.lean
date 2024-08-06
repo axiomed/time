@@ -6,5 +6,4 @@ Authors: Sofia Rodrigues
 prelude
 import Time.Time.HourMarker
 import Time.Time.Basic
-import Time.Time.Scalar
 import Time.Time.Time

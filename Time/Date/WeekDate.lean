@@ -11,6 +11,7 @@ import Time.Date.Date
 
 namespace Std
 namespace Time
+open Internal
 
 /--
 `WeekDate` represents a date using a combination of a week of the year and the year.

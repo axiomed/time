@@ -5,6 +5,5 @@ Authors: Sofia Rodrigues
 -/
 prelude
 import Time.Date.Basic
-import Time.Date.Scalar
 import Time.Date.Date
 import Time.Date.WeekDate

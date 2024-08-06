@@ -4,11 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
 prelude
-import Time.Bounded
+import Time.Internal
 import Time.Time
 
 namespace Std
 namespace Time
+open Internal
 
 /--
 `Instant` represents a place in time with second and nanoseconds precision.

@@ -5,15 +5,16 @@ Authors: Sofia Rodrigues
 -/
 prelude
 import Init.Data.Int
-import Time.LessEq
+import Time.Internal.LessEq
 
 namespace Std
 namespace Time
+namespace Internal
 
 set_option linter.all true in
 
 /--
-A `Bounded` is represented by an `Int` that is contrained by a lower and higher bounded using some
+A `Bounded` is represented by an `Int` that is constrained by a lower and higher bounded using some
 relation `rel`. It includes all the integers that `rel lo val ∧ rel val hi`.
 -/
 def Bounded (rel : Int → Int → Prop) (lo : Int) (hi : Int) := { val : Int // rel lo val ∧ rel val hi}
@@ -51,6 +52,10 @@ instance [Le lo n] [Le n hi] : OfNat (Bounded.LE lo hi) n where
 
 instance [Le lo hi] : Inhabited (Bounded.LE lo hi) where
   default := ⟨lo, And.intro (Int.le_refl lo) (Int.ofNat_le.mpr Le.p)⟩
+
+def Bounded.cast {rel : Int → Int → Prop} {lo₁ lo₂ hi₁ hi₂ : Int} (h₁ : lo₁ = lo₂) (h₂ : hi₁ = hi₂)
+    (b : Bounded rel lo₁ hi₁) : Bounded rel lo₂ hi₂ :=
+  .mk b.val ⟨h₁ ▸ b.property.1, h₂ ▸ b.property.2⟩
 
 /--
 A `Bounded` integer that the relation used is the the less-than relation so, it includes all
@@ -378,3 +383,6 @@ def succ (bounded : Bounded.LE lo hi) (h : bounded.val < hi) : Bounded.LE lo hi 
 
 end LE
 end Bounded
+end Internal
+end Time
+end Std

@@ -4,14 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
 prelude
-import Time.UnitVal
-import Time.Bounded
-import Time.LessEq
+import Time.Internal
 import Lean.Data.Rat
 
 namespace Std
 namespace Time
 namespace Millisecond
+open Internal
 
 /--
 `Ordinal` represents a bounded value for milliseconds, which ranges between 0 and 999.

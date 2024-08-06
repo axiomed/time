@@ -4,12 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
 prelude
-import Time.UnitVal
+import Time.Internal
 import Time.Date.Basic
 
 namespace Std
 namespace Time
 namespace Date
+open Internal
 
 /--
 `Scalar` represents a date offset, using the number of day as the underlying unit.

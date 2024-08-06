@@ -4,9 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
 prelude
-import Time.UnitVal
+import Time.Internal
 import Time.Date.Basic
-import Time.Date.Scalar
 
 namespace Std
 namespace Time
@@ -118,29 +117,13 @@ def toDaysSinceUNIXEpoch (date : Date) : Day.Offset :=
   .ofInt (era * 146097 + doe - 719468)
 
 /--
-Returns the `Scalar` starting from the UNIX epoch.
--/
-def toScalar (date : Date) : Date.Scalar :=
-  ⟨toDaysSinceUNIXEpoch date⟩
-
-/--
-Creates a new `Date` from a `Scalar` that begins on the epoch.
--/
-def ofScalar (scalar : Date.Scalar) : Date :=
-  ofDaysSinceUNIXEpoch scalar.day
-
-/--
 Calculate the Year.Offset from a Date
 -/
 def yearsSince (date : Date) (year : Year.Offset) : Year.Offset :=
   date.year - year
 
 instance : HAdd Date Day.Offset Date where
-  hAdd date day :=  ofScalar (toScalar date + ⟨day⟩)
-
-instance : HAdd Date Scalar Date where
-  hAdd date day := ofScalar (toScalar date + day)
-
+  hAdd date day :=  ofDaysSinceUNIXEpoch (toDaysSinceUNIXEpoch date + day)
 end Date
 end Time
 end Std

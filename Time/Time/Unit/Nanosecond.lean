@@ -4,18 +4,16 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
 prelude
-import Time.UnitVal
-import Time.Bounded
-import Time.LessEq
+import Time.Internal
 import Lean.Data.Rat
 import Time.Time.Unit.Millisecond
 
 namespace Std
 namespace Time
+namespace Nanosecond
+open Internal
 
 set_option linter.all true
-
-namespace Nanosecond
 
 /--
 `Ordinal` represents a bounded value for second, which ranges between 0 and 60.

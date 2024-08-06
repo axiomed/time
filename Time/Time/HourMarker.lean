@@ -8,6 +8,7 @@ import Time.Time.Basic
 
 namespace Std
 namespace Time
+open Internal
 
 set_option linter.all true
 

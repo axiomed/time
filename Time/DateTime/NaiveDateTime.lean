@@ -4,14 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
 prelude
-import Init.Data.Int
-import Time.LessEq
 import Time.Date
 import Time.Time
+import Time.Internal
 import Time.DateTime.Timestamp
 
 namespace Std
 namespace Time
+open Internal
 
 /--
 Date time format with Year, Month, Day, Hour, Minute, Seconds and Nanoseconds.
