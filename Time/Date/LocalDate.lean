@@ -18,7 +18,7 @@ structure LocalDate where
   year : Year.Offset
   month : Month.Ordinal
   day : Day.Ordinal
-  valid : year.valid month day
+  valid : year.Valid month day
   deriving Repr
 
 namespace LocalDate
@@ -37,7 +37,7 @@ instance : Inhabited LocalDate where
 Creates a new `LocalDate` using YMD.
 -/
 def ofYearMonthDay (year : Year.Offset) (month : Month.Ordinal) (day : Day.Ordinal) : Option LocalDate :=
-  if valid : year.valid month day
+  if valid : year.Valid month day
     then some (LocalDate.mk year month day valid)
     else none
 

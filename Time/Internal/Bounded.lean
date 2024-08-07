@@ -53,7 +53,7 @@ instance [Le lo n] [Le n hi] : OfNat (Bounded.LE lo hi) n where
 instance [Le lo hi] : Inhabited (Bounded.LE lo hi) where
   default := ⟨lo, And.intro (Int.le_refl lo) (Int.ofNat_le.mpr Le.p)⟩
 
-def Bounded.cast {rel : Int → Int → Prop} {lo₁ lo₂ hi₁ hi₂ : Int} (h₁ : lo₁ = lo₂) (h₂ : hi₁ = hi₂)
+def cast {rel : Int → Int → Prop} {lo₁ lo₂ hi₁ hi₂ : Int} (h₁ : lo₁ = lo₂) (h₂ : hi₁ = hi₂)
     (b : Bounded rel lo₁ hi₁) : Bounded rel lo₂ hi₂ :=
   .mk b.val ⟨h₁ ▸ b.property.1, h₂ ▸ b.property.2⟩
 

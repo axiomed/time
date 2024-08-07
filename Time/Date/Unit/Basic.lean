@@ -17,7 +17,7 @@ namespace Time.Day.Ordinal.OfYear
 Conevrts a `Year` and a `Ordinal.OfYear` to a valid day and month.
 -/
 @[inline]
-def toMonthAndDay (year : Year.Offset) (ordinal : OfYear year.isLeap) : { val : Month.Ordinal × Day.Ordinal // Year.Offset.valid year (Prod.fst val) (Prod.snd val) } :=
+def toMonthAndDay (year : Year.Offset) (ordinal : OfYear year.isLeap) : { val : Month.Ordinal × Day.Ordinal // Year.Offset.Valid year (Prod.fst val) (Prod.snd val) } :=
   Month.Ordinal.ofOrdinal ordinal
 
 end Time.Day.Ordinal.OfYear
