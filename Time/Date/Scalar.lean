@@ -9,7 +9,7 @@ import Time.Date.Basic
 
 namespace Std
 namespace Time
-namespace Date
+namespace LocalDate
 open Internal
 
 /--
@@ -64,5 +64,5 @@ def ofOffset (offset : Day.Offset) : Scalar :=
   ⟨offset⟩
 
 end Scalar
-end Date
+end LocalDate
 end Time

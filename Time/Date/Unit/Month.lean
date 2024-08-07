@@ -141,10 +141,10 @@ def days (leap : Bool) (month : Ordinal) : { day : Day.Ordinal // valid leap mon
   ⟨days' leap month, Int.le_refl ((days' leap month).val)⟩
 
 /--
-Forces the day to be on the valid range.
+Clips the day to be on the valid range.
 -/
 @[inline]
-def forceDay (leap : Bool) (month : Month.Ordinal) (day : Day.Ordinal) : { day : Day.Ordinal //valid leap month day } :=
+def clipDay (leap : Bool) (month : Month.Ordinal) (day : Day.Ordinal) : { day : Day.Ordinal //valid leap month day } :=
   let max : Day.Ordinal := month.days leap
   if h : day.val > max.val
     then ⟨max, Int.le_refl max.val⟩
@@ -174,7 +174,7 @@ def ofOrdinal (ordinal : Day.Ordinal.OfYear leap) : { val : Month.Ordinal × Day
     else
       if h : idx.val ≥ 11 then
         -- Need to remove this in the future.
-        let ⟨day, valid⟩ := forceDay leap 1 1
+        let ⟨day, valid⟩ := clipDay leap 1 1
         ⟨⟨1, day⟩, valid⟩
       else
         go ⟨idx.val + 1, Nat.succ_le_succ (Nat.not_le.mp h)⟩ cumulative

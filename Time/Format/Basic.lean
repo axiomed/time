@@ -14,7 +14,7 @@ namespace Std
 namespace Time
 open Internal
 
-open Lean.Parsec Lean Time Date TimeZone DateTime
+open Lean.Parsec Lean LocalTime LocalDate TimeZone DateTime
 
 /--
 The `Modifier` inductive type represents various formatting options for date and time components.
@@ -488,9 +488,9 @@ private structure DateBuilder where
   millisecond : Millisecond.Ordinal := 0
 
 private def DateBuilder.build (builder : DateBuilder) (aw : Awareness) : aw.type :=
-  let build := DateTime.ofNaiveDateTime {
-      date := Date.force builder.year builder.month builder.day
-      time := Time.mk builder.hour builder.minute builder.second (.ofMillisecond builder.millisecond)
+  let build := DateTime.ofLocalDateTime {
+      date := LocalDate.clip builder.year builder.month builder.day
+      time := LocalTime.mk builder.hour builder.minute builder.second (.ofMillisecond builder.millisecond)
   }
 
   match aw with
@@ -507,7 +507,7 @@ private def addDataInDateTime (data : DateBuilder) (typ : Modifier) (value : Sin
   | .DD | .D | .d => { data with day := value }
   | .EEEE | .EEE => data
   | .hh | .h | .HH | .H => { data with hour := value }
-  | .AA | .aa => { data with hour := HourMarker.toAbsolute! value data.hour }
+  | .AA | .aa => { data with hour := HourMarker.toAbsolute' value data.hour }
   | .mm | .m => { data with minute := value }
   | .sss => { data with millisecond := value }
   | .ss | .s => { data with second := value }

@@ -50,6 +50,13 @@ def ofHours (n: Hour.Offset) : Offset :=
   mk n n.toSeconds
 
 /--
+Creates an `Offset` from a given number of hour and minuets.
+-/
+def ofHoursAndMinutes (n: Hour.Offset) (m: Minute.Offset) : Offset :=
+  let secs := n.toSeconds + m.toSeconds
+  mk secs.toHours secs
+
+/--
 Creates an `Offset` from a given number of second.
 -/
 def ofSeconds (n: Second.Offset) : Offset :=

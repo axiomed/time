@@ -7,7 +7,7 @@ prelude
 import Time.Date.Unit.Year
 import Time.Date.Unit.WeekOfYear
 import Time.Date.Scalar
-import Time.Date.Date
+import Time.Date.LocalDate
 
 namespace Std
 namespace Time
@@ -26,14 +26,14 @@ namespace WeekDate
 /--
 Converts a `WeekDate` to a `Scalar`.
 -/
-def toScalar (wd : WeekDate) : Date.Scalar :=
+def toScalar (wd : WeekDate) : LocalDate.Scalar :=
   let days := wd.year.toInt * 365 + wd.week.val * 7
-  Date.Scalar.ofDays days
+  LocalDate.Scalar.ofDays days
 
 /--
 Creates a `WeekDate` from a `Scalar`.
 -/
-def fromScalar (scalar : Date.Scalar) : WeekDate :=
+def fromScalar (scalar : LocalDate.Scalar) : WeekDate :=
   let totalDays := scalar.toDays
   let year := totalDays / 365
   let week :=

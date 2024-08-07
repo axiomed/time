@@ -116,7 +116,7 @@ def ofNat' (val : Nat) (h : lo ≤ val ∧ val ≤ hi) : Bounded.LE lo hi :=
 Convert a `Nat` to a `Bounded.LE` using the lower boundary too.
 -/
 @[inline]
-def force (val : Int) (h : lo ≤ hi) : Bounded.LE lo hi :=
+def clip (val : Int) (h : lo ≤ hi) : Bounded.LE lo hi :=
   if h₀ : lo ≤ val then
     if h₁ : val ≤ hi
       then ⟨val, And.intro h₀ h₁⟩
@@ -127,7 +127,7 @@ def force (val : Int) (h : lo ≤ hi) : Bounded.LE lo hi :=
 Convert a `Nat` to a `Bounded.LE` using the lower boundary too.
 -/
 @[inline]
-def force! [Le lo hi] (val : Int) : Bounded.LE lo hi :=
+def clip! [Le lo hi] (val : Int) : Bounded.LE lo hi :=
   if h₀ : lo ≤ val then
     if h₁ : val ≤ hi
       then ⟨val, And.intro h₀ h₁⟩

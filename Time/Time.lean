@@ -4,6 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
 prelude
-import Time.Time.HourMarker
 import Time.Time.Basic
-import Time.Time.Time
+import Time.Time.HourMarker
+import Time.Time.LocalTime

@@ -43,11 +43,11 @@ def convertTimeZone (date : ZonedDateTime) (tz₁ : TimeZone) : ZonedDateTime :=
   ofTimestamp (date.toTimestamp) tz₁
 
 /--
-Creates a new `ZonedDateTime` out of a `NaiveDateTime`
+Creates a new `ZonedDateTime` out of a `LocalDateTime`
 -/
 @[inline]
-def ofNaiveDateTime (date : NaiveDateTime) (tz : TimeZone) : ZonedDateTime :=
-  ⟨tz, DateTime.ofNaiveDateTime date tz⟩
+def ofLocalDateTime (date : LocalDateTime) (tz : TimeZone) : ZonedDateTime :=
+  ⟨tz, DateTime.ofLocalDateTime date tz⟩
 
 /--
 Getter for the `Year` inside of a `ZonedDateTime`

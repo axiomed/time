@@ -6,6 +6,7 @@ Authors: Sofia Rodrigues
 prelude
 import Time.Internal
 import Time.Date.Basic
+import Time.Date.Scalar
 
 namespace Std
 namespace Time
@@ -13,44 +14,44 @@ namespace Time
 /--
 Date in YMD format.
 -/
-structure Date where
+structure LocalDate where
   year : Year.Offset
   month : Month.Ordinal
   day : Day.Ordinal
   valid : year.valid month day
   deriving Repr
 
-namespace Date
+namespace LocalDate
 
 /--
 Force the date to be valid.
 -/
-def force (year : Year.Offset) (month : Month.Ordinal) (day : Day.Ordinal) : Date :=
-  let ⟨day, valid⟩ := month.forceDay year.isLeap day
-  Date.mk year month day valid
+def clip (year : Year.Offset) (month : Month.Ordinal) (day : Day.Ordinal) : LocalDate :=
+  let ⟨day, valid⟩ := month.clipDay year.isLeap day
+  LocalDate.mk year month day valid
 
-instance : Inhabited Date where
-  default := force 0 1 1
+instance : Inhabited LocalDate where
+  default := clip 0 1 1
 
 /--
-Creates a new `Date` using YMD.
+Creates a new `LocalDate` using YMD.
 -/
-def ofYearMonthDay (year : Year.Offset) (month : Month.Ordinal) (day : Day.Ordinal) : Option Date :=
+def ofYearMonthDay (year : Year.Offset) (month : Month.Ordinal) (day : Day.Ordinal) : Option LocalDate :=
   if valid : year.valid month day
-    then some (Date.mk year month day valid)
+    then some (LocalDate.mk year month day valid)
     else none
 
 /--
-Creates a new `Date` using YO.
+Creates a new `LocalDate` using YO.
 -/
-def ofYearOrdinal (year : Year.Offset) (ordinal : Day.Ordinal.OfYear year.isLeap) : Date :=
+def ofYearOrdinal (year : Year.Offset) (ordinal : Day.Ordinal.OfYear year.isLeap) : LocalDate :=
   let ⟨⟨month, day⟩, valid⟩ := ordinal.toMonthAndDay
-  Date.mk year month day valid
+  LocalDate.mk year month day valid
 
 /--
-Creates a new `Date` using the `Day.Offset` which `0` corresponds the UNIX Epoch.
+Creates a new `LocalDate` using the `Day.Offset` which `0` corresponds the UNIX Epoch.
 -/
-def ofDaysSinceUNIXEpoch (day : Day.Offset) : Date :=
+def ofDaysSinceUNIXEpoch (day : Day.Offset) : LocalDate :=
   let z := day.toInt + 719468
   let era := (if z ≥ 0 then z else z - 146096) / 146097
   let doe := z - era * 146097
@@ -62,12 +63,12 @@ def ofDaysSinceUNIXEpoch (day : Day.Offset) : Date :=
   let m := mp + (if mp < 10 then 3 else -9)
   let y := y + (if m <= 2 then 1 else 0)
 
-  .force y (.force m (by decide)) (.force (d + 1) (by decide))
+  .clip y (.clip m (by decide)) (.clip (d + 1) (by decide))
 
 /--
-Returns the `Weekday` of a `Date`.
+Returns the `Weekday` of a `LocalDate`.
 -/
-def weekday (date : Date) : Weekday :=
+def weekday (date : LocalDate) : Weekday :=
   let q := date.day.toInt
   let m := date.month.toInt
   let y := date.year.toInt
@@ -84,9 +85,9 @@ def weekday (date : Date) : Weekday :=
   .ofFin ⟨d.toNat % 7, Nat.mod_lt d.toNat (by decide)⟩
 
 /--
-Returns the `Weekday` of a `Date` using Zeller's Congruence for the Julian calendar.
+Returns the `Weekday` of a `LocalDate` using Zeller's Congruence for the Julian calendar.
 -/
-def weekdayJulian (date : Date) : Weekday :=
+def weekdayJulian (date : LocalDate) : Weekday :=
   let month := date.month.toInt
   let year := date.year.toInt
 
@@ -103,9 +104,9 @@ def weekdayJulian (date : Date) : Weekday :=
   .ofFin ⟨d.toNat % 7, Nat.mod_lt d.toNat (by decide)⟩
 
 /--
-Convert `Date` to `Day.Offset` since the UNIX Epoch.
+Convert `LocalDate` to `Day.Offset` since the UNIX Epoch.
 -/
-def toDaysSinceUNIXEpoch (date : Date) : Day.Offset :=
+def toDaysSinceUNIXEpoch (date : LocalDate) : Day.Offset :=
   let y : Int := if date.month.toInt > 2 then date.year else date.year.toInt - 1
   let era : Int := (if y ≥ 0 then y else y - 399) / 400
   let yoe : Int := y - era * 400
@@ -117,13 +118,26 @@ def toDaysSinceUNIXEpoch (date : Date) : Day.Offset :=
   .ofInt (era * 146097 + doe - 719468)
 
 /--
-Calculate the Year.Offset from a Date
+Convert a `Scalar` to a `LocalDate` since the UNIX Epoch.
 -/
-def yearsSince (date : Date) (year : Year.Offset) : Year.Offset :=
+def ofScalar (day : Scalar) : LocalDate :=
+  ofDaysSinceUNIXEpoch day.day
+
+/--
+Convert a `LocalDate` to a `Scalar` since the UNIX Epoch.
+-/
+def toScalar (date : LocalDate) : Scalar :=
+  ⟨toDaysSinceUNIXEpoch date⟩
+
+/--
+Calculate the Year.Offset from a LocalDate
+-/
+def yearsSince (date : LocalDate) (year : Year.Offset) : Year.Offset :=
   date.year - year
 
-instance : HAdd Date Day.Offset Date where
+instance : HAdd LocalDate Day.Offset LocalDate where
   hAdd date day :=  ofDaysSinceUNIXEpoch (toDaysSinceUNIXEpoch date + day)
-end Date
+
+end LocalDate
 end Time
 end Std
