@@ -6,7 +6,6 @@ Authors: Sofia Rodrigues
 prelude
 import Time.Date.Unit.Year
 import Time.Date.Unit.WeekOfYear
-import Time.Date.Scalar
 import Time.Date.LocalDate
 
 namespace Std

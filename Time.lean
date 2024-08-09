@@ -9,6 +9,7 @@ import Time.Zoned
 import Time.Format
 import Time.DateTime
 import Time.Notation
+import Time.Duration
 
 namespace Time
 

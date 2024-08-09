@@ -6,6 +6,7 @@ Authors: Sofia Rodrigues
 prelude
 import Time.DateTime
 import Time.Zoned.TimeZone
+import Time.Zoned.ZoneRules
 
 namespace Std
 namespace Time

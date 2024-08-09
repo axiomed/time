@@ -6,6 +6,7 @@ Authors: Sofia Rodrigues
 prelude
 import Time.Zoned.TimeZone
 import Time.Zoned.DateTime
+import Time.Zoned.ZoneRules
 
 namespace Std
 namespace Time
@@ -39,6 +40,15 @@ Creates a new `Timestamp` out of a `ZonedDateTime`
 @[inline]
 def toTimestamp (date : ZonedDateTime) : Timestamp :=
   date.snd.toTimestamp
+
+/--
+Creates a new `DateTime` out of a `Timestamp`
+-/
+@[inline]
+def ofZoneRules (tm : Timestamp) (rules : TimeZone.ZoneRules) : Option ZonedDateTime := do
+  let transition ← rules.findTransitionForTimestamp tm
+  return ofTimestamp tm transition.localTimeType.getTimeZone
+
 
 /--
 Changes the `TimeZone` to a new one.

@@ -6,7 +6,6 @@ Authors: Sofia Rodrigues
 prelude
 import Time.Internal
 import Time.Date.Basic
-import Time.Date.Scalar
 
 namespace Std
 namespace Time
