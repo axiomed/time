@@ -35,7 +35,7 @@ Offsets represent unbounded shifts in specific date or time units. They are typi
 like `date.addDays` where a `Day.Offset` is the parameter. Some offsets, such as `Month.Offset`, do not
 correspond directly to a specific duration in seconds, as their value depends on the context (if
 the year is leap or the size of the month). Offsets with a clear correspondent to seconds can be
-converted because they use a internal type called `UnitVal`.
+converted because they use an internal type called `UnitVal`.
 
 - Types with a correspondence to seconds:
   - `Day.Offset`
@@ -51,7 +51,7 @@ converted because they use a internal type called `UnitVal`.
 
 ## Ordinal
 
-Ordinal types represent specific bounded values in reference to another unit, e.g, `Day.Ordinal`
+Ordinal types represent specific bounded values in reference to another unit, e.g., `Day.Ordinal`
 represents a day in a month, ranging from 1 to 31. Some ordinal types like `Hour.Ordinal` and `Second.Ordinal`,
 allow for values beyond the normal range (e.g, 24 hours and 61 seconds) to accomodate special cases
 with leap seconds like `24:00:00` that is valid in ISO 8601.
@@ -107,7 +107,7 @@ Combines date and time into a single representation, useful for precise timestam
 Combines date, time and time zones.
 
 - **`DateTime`**: Represents both date and time but with a time zone in the type constructor.
-- **`ZonedDateTime`**: An existencial version of the `DateTime`.
+- **`ZonedDateTime`**: An existential version of the `DateTime`.
 
 ## Duration
 Represents spans of time and the difference between two points in time.

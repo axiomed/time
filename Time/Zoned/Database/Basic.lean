@@ -13,18 +13,10 @@ namespace TimeZone
 namespace Database
 open TZif
 
-/--
-Function to convert LocalTimeType to Offset
--/
 def localTimeTypeToOffset (localTimeType : LocalTimeType) : Offset :=
   Offset.ofSeconds (Internal.UnitVal.ofInt localTimeType.gmtOffset)
 
-/--
-Find the current timestamp.
--/
 def findLocalTimeType (timestamp : Timestamp) (tzif : TZifV1) : Option LocalTimeType := do
-  -- This is a simplified example; actual implementation should handle
-  -- finding the correct LocalTimeType based on the timestamp and transition times.
   if !tzif.transitionTimes.isEmpty && !tzif.localTimeTypes.isEmpty then
     if let some idx := tzif.transitionTimes.findIdx? (λ t => t > timestamp.val) then
       let idx := tzif.transitionIndices.get! (idx - 1) |>.toNat
@@ -33,9 +25,6 @@ def findLocalTimeType (timestamp : Timestamp) (tzif : TZifV1) : Option LocalTime
       tzif.localTimeTypes.back
   else none
 
-/-
-This.
--/
 def tzifV1ToTimeZoneAt (timestamp : Timestamp) (tzif : TZifV1) : Option TimeZone := do
   let localTimeType ← findLocalTimeType timestamp tzif
   dbg_trace s!"{repr localTimeType}"
@@ -52,3 +41,5 @@ def t : IO Unit := do
   let data := tzifV1ToTimeZoneAt tm tz1.v1
   dbg_trace s!"{repr data}"
   pure ()
+
+#eval t
