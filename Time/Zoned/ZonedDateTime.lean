@@ -10,6 +10,11 @@ import Time.Zoned.DateTime
 namespace Std
 namespace Time
 
+set_option linter.all true
+
+/--
+The existential version of `DateTime` that instead of storing the timezone with a
+-/
 def ZonedDateTime := Sigma DateTime
 
 instance : CoeDep ZonedDateTime d (DateTime d.fst) where

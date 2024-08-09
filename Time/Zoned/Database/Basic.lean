@@ -30,13 +30,13 @@ def convertUt : Bool → UTLocal
 /--
 Converts a `TZif.LeapSecond` structure to a `LeapSecond` structure.
 -/
-def convertLeapSecond (tz: TZif.LeapSecond) : LeapSecond :=
+def convertLeapSecond (tz : TZif.LeapSecond) : LeapSecond :=
   { transitionTime := Internal.UnitVal.mk tz.transitionTime, correction := Internal.UnitVal.mk tz.correction }
 
 /--
 Converts a `TZif.TZifV1` structure to a `ZoneRules` structure.
 -/
-def convertTZifV1 (tz: TZif.TZifV1) : Option ZoneRules := do
+def convertTZifV1 (tz : TZif.TZifV1) : Option ZoneRules := do
   let mut times : Array LocalTimeType := #[]
 
   for i in [0:tz.header.timecnt.toNat] do
@@ -66,13 +66,13 @@ def convertTZifV1 (tz: TZif.TZifV1) : Option ZoneRules := do
 /--
 Converts a `TZif.TZifV2` structure to a `ZoneRules` structure.
 -/
-def convertTZifV2 (tz: TZif.TZifV2) : Option ZoneRules := do
+def convertTZifV2 (tz : TZif.TZifV2) : Option ZoneRules := do
    convertTZifV1 tz.toTZifV1
 
 /--
 Converts a `TZif.TZif` structure to a `ZoneRules` structure.
 -/
-def convertTZif (tz: TZif.TZif) : Option ZoneRules := do
+def convertTZif (tz : TZif.TZif) : Option ZoneRules := do
   if let some v2 := tz.v2 then
     convertTZifV2 v2
   else

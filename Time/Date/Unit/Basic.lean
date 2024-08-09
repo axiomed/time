@@ -13,6 +13,8 @@ import Time.Date.Unit.WeekOfYear
 namespace Std
 namespace Time.Day.Ordinal.OfYear
 
+set_option linter.all true
+
 /--
 Conevrts a `Year` and a `Ordinal.OfYear` to a valid day and month.
 -/
