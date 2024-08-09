@@ -6,6 +6,8 @@ Authors: Sofia Rodrigues
 import Lean.Data.Parsec
 import Lean.Data.Parsec.ByteArray
 
+-- Based on: https://www.rfc-editor.org/rfc/rfc8536.html
+
 namespace Std
 namespace Time
 namespace TimeZone
@@ -42,8 +44,8 @@ structure LocalTimeType where
 Represents a leap second record, including the transition time and the correction applied.
 -/
 structure LeapSecond where
-  transitionTime : Int32
-  correction : Int32
+  transitionTime : Int64
+  correction : Int64
   deriving Repr, Inhabited
 
 /--
@@ -63,15 +65,7 @@ structure TZifV1 where
 /--
 Represents version 2 of the TZif format, extending TZifV1 with an optional footer.
 -/
-structure TZifV2 where
-  header : Header
-  transitionTimes : Array Int32
-  transitionIndices : Array UInt8
-  localTimeTypes : Array LocalTimeType
-  abbreviations : Array String
-  leapSeconds : Array LeapSecond
-  stdWallIndicators : Array Bool
-  utLocalIndicators : Array Bool
+structure TZifV2 extends TZifV1 where
   footer : Option String
   deriving Repr, Inhabited
 
@@ -149,17 +143,20 @@ private def parseTransitionIndices (n : UInt32) : Parser (Array UInt8) :=
 private def parseLocalTimeTypes (n : UInt32) : Parser (Array LocalTimeType) :=
   manyN (n.toNat) parseLocalTimeType
 
-private def parseAbbreviations (n : UInt32) : Parser (Array String) := do
+private def parseAbbreviations (times: Array LocalTimeType) (n : UInt32) : Parser (Array String) := do
   let mut strings := #[]
   let mut current := ""
   let mut chars ← manyN n.toNat pu8
 
-  for char in chars do
-    if char == 0 then
-      strings := strings.push current
-      current := ""
-    else
-      current := current.push (Char.ofUInt8 char)
+  for time in times do
+    for indx in [time.abbreviationIndex.toNat:n.toNat] do
+      let char := chars.get! indx
+      if char = 0 then
+        strings := strings.push current
+        current := ""
+        break
+      else
+        current := current.push (Char.ofUInt8 char)
 
   return strings
 
@@ -171,15 +168,24 @@ private def parseIndicators (n : UInt32) : Parser (Array Bool) :=
 
 private def parseTZifV1 : Parser TZifV1 := do
   let header ← parseHeader
+
+  let transitionTimes ← parseTransitionTimes pi32 header.timecnt
+  let transitionIndices ← parseTransitionIndices header.timecnt
+  let localTimeTypes ← parseLocalTimeTypes header.typecnt
+  let abbreviations ← parseAbbreviations localTimeTypes header.charcnt
+  let leapSeconds ← parseLeapSeconds pi32 header.leapcnt
+  let stdWallIndicators ← parseIndicators header.isstdcnt
+  let utLocalIndicators ← parseIndicators header.isutcnt
+
   return {
       header
-      transitionTimes := (← parseTransitionTimes pi32 header.timecnt)
-      transitionIndices := (← parseTransitionIndices header.timecnt)
-      localTimeTypes := (← parseLocalTimeTypes header.typecnt)
-      abbreviations := (← parseAbbreviations header.charcnt)
-      leapSeconds := (← parseLeapSeconds pi32 header.leapcnt)
-      stdWallIndicators := (← parseIndicators header.isstdcnt)
-      utLocalIndicators := (← parseIndicators header.isutcnt)
+      transitionTimes
+      transitionIndices
+      localTimeTypes
+      abbreviations
+      leapSeconds
+      stdWallIndicators
+      utLocalIndicators
   }
 
 private def parseFooter : Parser (Option String) := do
@@ -197,16 +203,25 @@ private def parseFooter : Parser (Option String) := do
 
 private def parseTZifV2 : Parser (Option TZifV2) := optional $ do
   let header ← parseHeader
-  pure {
-    header := header
-    transitionTimes := (← parseTransitionTimes pi64 header.timecnt)
-    transitionIndices := (← parseTransitionIndices header.timecnt)
-    localTimeTypes := (← parseLocalTimeTypes header.typecnt)
-    abbreviations := (← parseAbbreviations header.charcnt)
-    leapSeconds := (← parseLeapSeconds pi64 header.leapcnt)
-    stdWallIndicators := (← parseIndicators header.isstdcnt)
-    utLocalIndicators := (← parseIndicators header.isutcnt)
-    footer := (← parseFooter)
+
+  let transitionTimes ← parseTransitionTimes pi64 header.timecnt
+  let transitionIndices ← parseTransitionIndices header.timecnt
+  let localTimeTypes ← parseLocalTimeTypes header.typecnt
+  let abbreviations ← parseAbbreviations localTimeTypes header.charcnt
+  let leapSeconds ← parseLeapSeconds pi64 header.leapcnt
+  let stdWallIndicators ← parseIndicators header.isstdcnt
+  let utLocalIndicators ← parseIndicators header.isutcnt
+
+  return {
+      header
+      transitionTimes
+      transitionIndices
+      localTimeTypes
+      abbreviations
+      leapSeconds
+      stdWallIndicators
+      utLocalIndicators
+      footer := ← parseFooter
   }
 
 /--

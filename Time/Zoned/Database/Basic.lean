@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
 import Time.Zoned.Database.TzIf
+import Time.Zoned.ZoneRules
 import Time.Zoned.TimeZone
 import Time.DateTime
 
@@ -11,35 +12,68 @@ namespace Std
 namespace Time
 namespace TimeZone
 namespace Database
-open TZif
 
-def localTimeTypeToOffset (localTimeType : LocalTimeType) : Offset :=
-  Offset.ofSeconds (Internal.UnitVal.ofInt localTimeType.gmtOffset)
+/--
+Converts a Boolean value to a corresponding `StdWall` type.
+-/
+def convertWall : Bool → StdWall
+  | true => .standard
+  | false => .wall
 
-def findLocalTimeType (timestamp : Timestamp) (tzif : TZifV1) : Option LocalTimeType := do
-  if !tzif.transitionTimes.isEmpty && !tzif.localTimeTypes.isEmpty then
-    if let some idx := tzif.transitionTimes.findIdx? (λ t => t > timestamp.val) then
-      let idx := tzif.transitionIndices.get! (idx - 1) |>.toNat
-      tzif.localTimeTypes.get! idx
-    else
-      tzif.localTimeTypes.back
-  else none
+/--
+Converts a Boolean value to a corresponding `UTLocal` type.
+-/
+def convertUt : Bool → UTLocal
+  | true => .ut
+  | false => .local
 
-def tzifV1ToTimeZoneAt (timestamp : Timestamp) (tzif : TZifV1) : Option TimeZone := do
-  let localTimeType ← findLocalTimeType timestamp tzif
-  dbg_trace s!"{repr localTimeType}"
-  let offset := localTimeTypeToOffset localTimeType
-  let abbreviationIndex := localTimeType.abbreviationIndex
-  dbg_trace s!"{repr tzif.abbreviations}"
-  let abbreviation := tzif.abbreviations.getD abbreviationIndex.toNat "Unknown"
-  some { offset := offset, name := abbreviation }
+/--
+Converts a `TZif.LeapSecond` structure to a `LeapSecond` structure.
+-/
+def convertLeapSecond (tz: TZif.LeapSecond) : LeapSecond :=
+  { transitionTime := Internal.UnitVal.mk tz.transitionTime, correction := Internal.UnitVal.mk tz.correction }
 
-def t : IO Unit := do
-  let tm : Timestamp := 1192330900
-  let tz1 ← IO.FS.readBinFile "/etc/localtime"
-  let tz1 := (TZif.parse.run tz1).toOption.get!
-  let data := tzifV1ToTimeZoneAt tm tz1.v1
-  dbg_trace s!"{repr data}"
-  pure ()
+/--
+Converts a `TZif.TZifV1` structure to a `ZoneRules` structure.
+-/
+def convertTZifV1 (tz: TZif.TZifV1) : Option ZoneRules := do
+  let mut times : Array LocalTimeType := #[]
 
-#eval t
+  for i in [0:tz.header.timecnt.toNat] do
+    let localType := tz.localTimeTypes.get! i
+    let abbreviation := tz.abbreviations.get! i
+    let wallflag := convertWall <| tz.stdWallIndicators.get! i
+    let utLocal := convertUt <| tz.utLocalIndicators.get! i
+    times := times.push {
+      gmtOffset := Internal.UnitVal.mk localType.gmtOffset
+      isDst := localType.isDst
+      abbreviation
+      wall := wallflag
+      utLocal
+    }
+
+  let mut transitions := #[]
+  let leapSeconds := tz.leapSeconds.map convertLeapSecond
+
+  for i in [0:tz.transitionTimes.size] do
+    let time := tz.transitionTimes.get! i
+    let time := Internal.UnitVal.mk time
+    let indice ← tz.transitionIndices.get? i
+    transitions := transitions.push { time, localTimeType := times.get! indice.toNat }
+
+  some { leapSeconds,transitions }
+
+/--
+Converts a `TZif.TZifV2` structure to a `ZoneRules` structure.
+-/
+def convertTZifV2 (tz: TZif.TZifV2) : Option ZoneRules := do
+   convertTZifV1 tz.toTZifV1
+
+/--
+Converts a `TZif.TZif` structure to a `ZoneRules` structure.
+-/
+def convertTZif (tz: TZif.TZif) : Option ZoneRules := do
+  if let some v2 := tz.v2 then
+    convertTZifV2 v2
+  else
+    convertTZifV1 tz.v1
