@@ -10,14 +10,33 @@ import Time.Date.Basic
 namespace Std
 namespace Time
 
+set_option linter.all true
+
 /--
 Date in YMD format.
 -/
 structure LocalDate where
+
+  /--
+  The year component of the date. It is represented as an `Offset` type from `Year`.
+  -/
   year : Year.Offset
+
+  /--
+  The month component of the date. It is represented as an `Ordinal` type from `Month`.
+  -/
   month : Month.Ordinal
+
+  /--
+  The day component of the date. It is represented as an `Ordinal` type from `Day`.
+  -/
   day : Day.Ordinal
+
+  /--
+  Validates the date by ensuring that the year, month, and day form a correct and valid date.
+  -/
   valid : year.Valid month day
+
   deriving Repr
 
 namespace LocalDate
@@ -44,7 +63,7 @@ def ofYearMonthDay (year : Year.Offset) (month : Month.Ordinal) (day : Day.Ordin
 Creates a new `LocalDate` using YO.
 -/
 def ofYearOrdinal (year : Year.Offset) (ordinal : Day.Ordinal.OfYear year.isLeap) : LocalDate :=
-  let ⟨⟨month, day⟩, valid⟩ := ordinal.toMonthAndDay
+  let ⟨⟨month, day⟩, valid⟩ := Month.Ordinal.ofOrdinal ordinal
   LocalDate.mk year month day valid
 
 /--
@@ -115,18 +134,6 @@ def toDaysSinceUNIXEpoch (date : LocalDate) : Day.Offset :=
   let doe := yoe * 365 + yoe / 4 - yoe / 100 + doy
 
   .ofInt (era * 146097 + doe - 719468)
-
-/--
-Convert a `Scalar` to a `LocalDate` since the UNIX Epoch.
--/
-def ofScalar (day : Scalar) : LocalDate :=
-  ofDaysSinceUNIXEpoch day.day
-
-/--
-Convert a `LocalDate` to a `Scalar` since the UNIX Epoch.
--/
-def toScalar (date : LocalDate) : Scalar :=
-  ⟨toDaysSinceUNIXEpoch date⟩
 
 /--
 Calculate the Year.Offset from a LocalDate

@@ -7,12 +7,15 @@ prelude
 import Time.Zoned.DateTime
 import Time.Zoned.ZoneRules
 import Time.Zoned.ZonedDateTime
+import Time.Zoned.ZonedDateTime
 import Time.Zoned.Database.Basic
 
 namespace Std
 namespace Time
 namespace TimeZone
 namespace ZoneRules
+
+set_option linter.all true
 
 /--
 Parses a binary data into a zone rules.

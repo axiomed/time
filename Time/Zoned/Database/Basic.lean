@@ -13,6 +13,8 @@ namespace Time
 namespace TimeZone
 namespace Database
 
+set_option linter.all true
+
 /--
 Converts a Boolean value to a corresponding `StdWall` type.
 -/

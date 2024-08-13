@@ -11,12 +11,23 @@ import Time.Zoned.ZoneRules
 namespace Std
 namespace Time
 
+set_option linter.all true
+
 /--
 It stores a `Timestamp`, a `LocalDateTime` and a `TimeZone`
 -/
 structure DateTime (tz : TimeZone) where
   private mk ::
+
+  /--
+  `Timestamp` represents the exact moment in time.
+  -/
   timestamp : Timestamp
+
+  /--
+  `Date` is a `Thunk` containing the `LocalDateTime` that represents the local date and time, it's
+  used for accessing data like `day` and `month` without having to recompute the data everytime.
+  -/
   date : Thunk LocalDateTime
 
 instance : Inhabited (DateTime tz) where
@@ -29,7 +40,7 @@ Creates a new `DateTime` out of a `Timestamp`
 -/
 @[inline]
 def ofTimestamp (tm : Timestamp) (tz : TimeZone) : DateTime tz :=
-  DateTime.mk tm (Thunk.mk <| λ_ => (tm + tz.toSeconds).toLocalDateTime)
+  DateTime.mk tm (Thunk.mk <| λ_ => (tm.addSeconds tz.toSeconds).toLocalDateTime)
 
 /--
 Creates a new `Timestamp` out of a `DateTime`
@@ -50,7 +61,7 @@ Creates a new DateTime out of a `LocalDateTime`
 -/
 @[inline]
 def ofLocalDateTime (date : LocalDateTime) (tz : TimeZone) : DateTime tz :=
-  let tm := date.toTimestamp - tz.toSeconds
+  let tm := Timestamp.ofNanoseconds <| date.toUTCTimestamp.toNanoseconds.sub (tz.toSeconds.mul 1000000000)
   DateTime.mk tm date
 
 /--
@@ -101,6 +112,7 @@ Getter for the `Milliseconds` inside of a `DateTime`
 @[inline]
 def milliseconds (dt : DateTime tz) : Millisecond.Ordinal :=
   dt.date.get.time.nano.toMillisecond
+
 /--
 Gets the `Weekday` of a DateTime.
 -/

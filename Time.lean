@@ -3,15 +3,17 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
-import Time.Time
-import Time.Date
-import Time.Zoned
-import Time.Format
-import Time.DateTime
-import Time.Notation
-import Time.Duration
+import Std.Time.Time
+import Std.Time.Date
+import Std.Time.Zoned
+import Std.Time.Format
+import Std.Time.DateTime
+import Std.Time.Notation
+import Std.Time.Duration
 
 namespace Time
+
+set_option linter.all true
 
 /-!
 # Time
@@ -82,15 +84,12 @@ nanoseconds corresponds to one second.
 
 Dates and times are composed of these components. Dates are "absolute" value in contrast with Offsets
 that are just shifts in dates and times. Types like `Date` are made using of components such as `Year.Offset`,
-`Month.Ordinal`, and `Day.Ordinal`, with a proof of the date's validity. Some types, like `Date.Scalar`,
-are wrappers around offsets (e.g., `Day.Offset`) and represent absolute dates relative to the UNIX Epoch.
+`Month.Ordinal`, and `Day.Ordinal`, with a proof of the date's validity.
 
 ## Date
 These types provide precision down to the day level, useful for representing and manipulating dates.
 
 - **`LocalDate`:** Represents a calendar date in the format `YYYY-MM-DD`.
-- **`LocalDate.Scalar`:** : Represents an absolute date with day-level precision in a compact format `DD`.
-  It encapsulates days since the UNIX Epoch.
 - **`WeekDate`:** Uses the `YYYY-Www` format with week level precision.
 
 ## Time
@@ -103,7 +102,7 @@ Combines date and time into a single representation, useful for precise timestam
 
 - **`LocalDateTime`**: Represents both date and time in the format `YYYY-MM-DDTHH:mm:ss.SSSSSSSSS`.
 - **`Timestamp`**: Represents a point in time with second-level precision. It starts on the UNIX
-dpoch and it should be used when you receive or need to send timestamps to another systems.
+epoch and it should be used when you receive or need to send timestamps to another systems.
 
 ## Zoned date and times.
 Combines date, time and time zones.

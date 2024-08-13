@@ -270,9 +270,9 @@ def add (bounded : Bounded.LE n m) (num : Int) : Bounded.LE (n + num) (m + num) 
 Adjust the bounds of a `Bounded` by adding a constant value to the upper bounds.
 -/
 @[inline]
-def addTop (bounded : Bounded.LE n m) (num : Nat) : Bounded.LE n (m + num) := by
+def addTop (bounded : Bounded.LE n m) (num : Int) (h : num ≥ 0) : Bounded.LE n (m + num) := by
   refine ⟨bounded.val + num, And.intro ?_ ?_⟩
-  · let h := Int.add_le_add bounded.property.left (Int.ofNat_zero_le num)
+  · let h := Int.add_le_add bounded.property.left h
     simp at h
     exact h
   · exact Int.add_le_add bounded.property.right (Int.le_refl num)
@@ -281,10 +281,10 @@ def addTop (bounded : Bounded.LE n m) (num : Nat) : Bounded.LE n (m + num) := by
 Adjust the bounds of a `Bounded` by adding a constant value to the lower bounds.
 -/
 @[inline]
-def subBottom (bounded : Bounded.LE n m) (num : Nat) : Bounded.LE (n - num) m := by
+def subBottom (bounded : Bounded.LE n m) (num : Int) (h : num ≥ 0) : Bounded.LE (n - num) m := by
   refine ⟨bounded.val - num, And.intro ?_ ?_⟩
   · exact Int.add_le_add bounded.property.left (Int.le_refl (-num))
-  · let h := Int.sub_le_sub bounded.property.right (Int.ofNat_zero_le num)
+  · let h := Int.sub_le_sub bounded.property.right h
     simp at h
     exact h
 
@@ -292,7 +292,7 @@ def subBottom (bounded : Bounded.LE n m) (num : Nat) : Bounded.LE (n - num) m :=
 Adds two `Bounded` and adjust the boundaries.
 -/
 @[inline]
-def addBounds (bounded : Bounded.LE n m) (bounded₂ : Bounded.LE n m) : Bounded.LE (n + n) (m + m) := by
+def addBounds (bounded : Bounded.LE n m) (bounded₂ : Bounded.LE i j) : Bounded.LE (n + i) (m + j) := by
   refine ⟨bounded.val + bounded₂.val, And.intro ?_ ?_⟩
   · exact Int.add_le_add bounded.property.left bounded₂.property.left
   · exact Int.add_le_add bounded.property.right bounded₂.property.right
@@ -349,9 +349,9 @@ def mul_neg (bounded : Bounded.LE n m) (num : Int) (h : num ≤ 0) : Bounded.LE 
 Adjust the bounds of a `Bounded` by applying the div operation.
 -/
 @[inline]
-def div (bounded : Bounded.LE n m) (num : Int) (h : num > 0) : Bounded.LE (n / num) (m / num) := by
+def ediv (bounded : Bounded.LE n m) (num : Int) (h : num > 0) : Bounded.LE (n / num) (m / num) := by
   let ⟨left, right⟩ := bounded.property
-  refine ⟨bounded.val / num, And.intro ?_ ?_⟩
+  refine ⟨bounded.val.ediv num, And.intro ?_ ?_⟩
   apply Int.ediv_le_ediv
   · exact h
   · exact left
@@ -359,6 +359,9 @@ def div (bounded : Bounded.LE n m) (num : Int) (h : num > 0) : Bounded.LE (n / n
     · exact h
     · exact right
 
+@[inline]
+def eq {n : Int} : Bounded.LE n n :=
+  ⟨n, And.intro (Int.le_refl n) (Int.le_refl n)⟩
 /--
 Expand the bottom of the bounded to a number `nhi` is `hi` is less or equal to the previous higher bound.
 -/

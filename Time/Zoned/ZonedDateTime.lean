@@ -112,6 +112,7 @@ Getter for the `TimeZone.Offset` inside of a `ZonedDateTime`
 @[inline]
 def offset (zdt : ZonedDateTime) : TimeZone.Offset :=
   zdt.fst.offset
+
 /--
 Getter for the `TimeZone.Offset` inside of a `ZonedDateTime`
 -/

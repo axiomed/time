@@ -12,6 +12,8 @@ namespace Time
 namespace Millisecond
 open Internal
 
+set_option linter.all true
+
 /--
 `Ordinal` represents a bounded value for milliseconds, which ranges between 0 and 999.
 -/

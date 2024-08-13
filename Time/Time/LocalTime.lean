@@ -8,14 +8,32 @@ import Time.Time.Basic
 
 namespace Std
 namespace Time
+open Internal
+
+set_option linter.all true
 
 /--
 Represents a specific point in time, including hours, minutes, seconds, and nanoseconds.
 -/
 structure LocalTime where
+  /--
+  `Hour` component of the `LocalTime`
+  -/
   hour : Hour.Ordinal
+
+  /--
+  `Minute` component of the `LocalTime`
+  -/
   minute : Minute.Ordinal
+
+  /--
+  `Second` component of the `LocalTime`
+  -/
   second : Second.Ordinal
+
+  /--
+  `Nanoseconds` component of the `LocalTime`
+  -/
   nano : Nanosecond.Ordinal
   deriving Repr, Inhabited, BEq
 
@@ -26,6 +44,17 @@ Creates a `LocalTime` value from hours, minutes, and seconds, setting nanosecond
 -/
 def ofHourMinuteSeconds (hour : Hour.Ordinal) (minute : Minute.Ordinal) (second : Second.Ordinal) : LocalTime :=
   ⟨hour, minute, second, 0⟩
+
+/--
+Converts a `LocalTime` value to the total number of seconds since midnight.
+-/
+def toNanoseconds (time : LocalTime) : Nanosecond.Offset :=
+  let secs :=
+    time.hour.toOffset.toSeconds +
+    time.minute.toOffset.toSeconds +
+    time.second.toOffset
+  let nanos := secs.mul 1000000000
+  UnitVal.mk (nanos.val + time.nano.val)
 
 /--
 Converts a `LocalTime` value to the total number of seconds since midnight.

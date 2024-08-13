@@ -16,6 +16,7 @@ open Internal
 set_option linter.all true
 
 namespace Month
+
 /--
 `Ordinal` represents a bounded value for months, which ranges between 1 and 12.
 -/
@@ -135,7 +136,7 @@ Transforms `Month.Ordinal` into `Minute.Offset`.
 @[inline]
 def toMinute (leap : Bool) (month : Ordinal) : Minute.Offset :=
   toSeconds leap month
-  |>.div 60
+  |>.ediv 60
 
 /--
 Transforms `Month.Ordinal` into `Hour.Offset`.
@@ -143,7 +144,7 @@ Transforms `Month.Ordinal` into `Hour.Offset`.
 @[inline]
 def toHours (leap : Bool) (month : Ordinal) : Hour.Offset :=
   toMinute leap month
-  |>.div 60
+  |>.ediv 60
 
 /--
 Transforms `Month.Ordinal` into `Day.Offset`.

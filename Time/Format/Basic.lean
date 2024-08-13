@@ -13,69 +13,69 @@ import Lean.Data.Parsec
 namespace Std
 namespace Time
 open Internal
-
 open Lean.Parsec.String
 open Lean.Parsec Lean LocalTime LocalDate TimeZone DateTime
+
+set_option linter.all true
 
 /--
 The `Modifier` inductive type represents various formatting options for date and time components.
 These modifiers are typically used in formatting functions to generate human-readable date and time strings.
-
-- `YYYY`: Four-digit year (e.g., 2024).
-- `YY`: Two-digit year (e.g., 24 for 2024).
-- `MMMM`: Full month name (e.g., January, February).
-- `MMM`: Abbreviated month name (e.g., Jan, Feb).
-- `MM`: Two-digit month (e.g., 01 for January).
-- `M`: One or two-digit month (e.g., 1 for January, 10 for October).
-- `DD`: Two-digit day of the month (e.g., 01, 02).
-- `D`: One or two-digit day of the month (e.g., 1, 2).
-- `d`: One or two digit day of the month with space padding at the beggining (e.g.  1, 12).
-- `EEEE`: Full name of the day of the week (e.g., Monday, Tuesday).
-- `EEE`: Abbreviated day of the week (e.g., Mon, Tue).
-- `hh`: Two-digit hour in 24-hour format (e.g., 01, 02).
-- `h`: One or two-digit hour in 24-hour format (e.g., 1, 2).
-- `HH`: Two-digit hour in 12-hour format (e.g., 13, 14).
-- `H`: One or two-digit hour in 12-hour format (e.g., 1, 2).
-- `AA`: Uppercase AM/PM indicator (e.g., AM, PM).
-- `aa`: Lowercase am/pm indicator (e.g., am, pm).
-- `mm`: Two-digit minute (e.g., 01, 02).
-- `m`: One or two-digit minute (e.g., 1, 2).
-- `sss`: Three-digit milliseconds (e.g., 001, 202).
-- `ss`: Two-digit second (e.g., 01, 02).
-- `s`: One or two-digit second (e.g., 1, 2).
-- `ZZZZZ`: Full timezone offset including hours and minutes (e.g., +03:00).
-- `ZZZZ`: Timezone offset including hours and minutes without the colon (e.g., +0300).
-- `ZZZ`: Like ZZZZ but with a special case "UTC" for UTC.
-- `Z`: Like ZZZZZ but with a special case "Z" for UTC.
-- `z`: Name of the time-zone like (Brasilia Standard Time).
 -/
 inductive Modifier
+  /-- `YYYY`: Four-digit year (e.g., 2024). -/
   | YYYY
+  /-- `YY`: Two-digit year (e.g., 24 for 2024). -/
   | YY
+  /-- `MMMM`: Full month name (e.g., January, February). -/
   | MMMM
+  /-- `MMM`: Abbreviated month name (e.g., Jan, Feb). -/
   | MMM
+  /-- `MM`: Two-digit month (e.g., 01 for January). -/
   | MM
+  /-- `M`: One or two-digit month (e.g., 1 for January, 10 for October). -/
   | M
+  /-- `DD`: Two-digit day of the month (e.g., 01, 02). -/
   | DD
+  /-- `D`: One or two-digit day of the month (e.g., 1, 2). -/
   | D
+  /-- `d`: One or two digit day of the month with space padding at the beggining (e.g.  1, 12). -/
   | d
+  /-- `EEEE`: Full name of the day of the week (e.g., Monday, Tuesday). -/
   | EEEE
+  /-- `EEE`: Abbreviated day of the week (e.g., Mon, Tue). -/
   | EEE
+  /-- `hh`: Two-digit hour in 24-hour format (e.g., 01, 02). -/
   | hh
+  /-- `h`: One or two-digit hour in 24-hour format (e.g., 1, 2). -/
   | h
+  /-- `HH`: Two-digit hour in 12-hour format (e.g., 13, 14). -/
   | HH
+  /-- `H`: One or two-digit hour in 12-hour format (e.g., 1, 2). -/
   | H
+  /-- `AA`: Uppercase AM/PM indicator (e.g., AM, PM). -/
   | AA
+  /-- `aa`: Lowercase am/pm indicator (e.g., am, pm). -/
   | aa
+  /-- `mm`: Two-digit minute (e.g., 01, 02). -/
   | mm
+  /-- `m`: One or two-digit minute (e.g., 1, 2). -/
   | m
+  /-- `sss`: Three-digit milliseconds (e.g., 001, 202). -/
   | sss
+  /-- `ss`: Two-digit second (e.g., 01, 02). -/
   | ss
+  /-- `s`: One or two-digit second (e.g., 1, 2). -/
   | s
+  /-- `ZZZZZ`: Full timezone offset including hours and minutes (e.g., +03:00). -/
   | ZZZZZ
+  /-- `ZZZZ`: Timezone offset including hours and minutes without the colon (e.g., +0300). -/
   | ZZZZ
+  /-- `ZZZ`: Like ZZZZ but with a special case "UTC" for UTC. -/
   | ZZZ
+  /-- `Z`: Like ZZZZZ but with a special case "Z" for UTC. -/
   | Z
+  /-- `z`: Name of the time-zone like (Brasilia Standard Time). -/
   | z
   deriving Repr
 
@@ -84,7 +84,9 @@ The part of a formatting string. a string is just a text and a modifier is in th
 0 is the quantity of left pad and `T` the `Modifier`.
 -/
 inductive FormatPart
+  /-- A string literal. -/
   | string (val : String)
+  /-- A modifier that renders some data into text. -/
   | modifier (modifier : Modifier)
   deriving Repr
 
@@ -99,8 +101,13 @@ The format of date and time string.
 -/
 abbrev FormatString := List FormatPart
 
+/--
+If the format is aware of some timezone data it parses or if it parses any timezone.
+-/
 inductive Awareness
+  /-- The format only parses a single timezone. -/
   | only : TimeZone → Awareness
+  /-- The format parses any timezone. -/
   | any
 
 namespace Awareness
@@ -109,7 +116,7 @@ instance : Coe TimeZone Awareness where
   coe := .only
 
 @[simp]
-def type (x : Awareness) : Type :=
+private def type (x : Awareness) : Type :=
   match x with
   | .any => ZonedDateTime
   | .only tz => DateTime tz
@@ -119,14 +126,18 @@ instance : Inhabited (type aw) where
     simp [type]
     split <;> exact Inhabited.default
 
-def getD (x : Awareness) (default : TimeZone) : TimeZone :=
+private def getD (x : Awareness) (default : TimeZone) : TimeZone :=
   match x with
   | .any => default
   | .only tz => tz
 
 end Awareness
 
+/--
+A specification on how to format a data or parse some string.
+-/
 structure Format (awareness : Awareness) where
+  /-- The format that is not aware of the timezone. -/
   string : FormatString
   deriving Inhabited, Repr
 
@@ -161,7 +172,7 @@ private def parseModifier : Parser Modifier
   <|> pstring "Z" *> pure .Z
   <|> pstring "z" *> pure .z
 
-def isFormatStart : Char → Bool := Char.isAlpha
+private def isFormatStart : Char → Bool := Char.isAlpha
 
 private def pnumber : Parser Nat := do
   let numbers ← manyChars digit
@@ -331,7 +342,7 @@ private def formatPart (modifier : Modifier) (data : SingleFormatType modifier) 
   | .z     => data
 
 @[simp]
-def FormatType (result : Type) : FormatString → Type
+private def FormatType (result : Type) : FormatString → Type
   | .modifier entry :: xs => (SingleFormatType entry) → (FormatType result xs)
   | .string _ :: xs => (FormatType result xs)
   | [] => result
@@ -508,7 +519,7 @@ private def addDataInDateTime (data : DateBuilder) (typ : Modifier) (value : Sin
   | .DD | .D | .d => { data with day := value }
   | .EEEE | .EEE => data
   | .hh | .h | .HH | .H => { data with hour := value }
-  | .AA | .aa => { data with hour := HourMarker.toAbsolute' value data.hour }
+  | .AA | .aa => { data with hour := HourMarker.toAbsoluteShift value data.hour }
   | .mm | .m => { data with minute := value }
   | .sss => { data with millisecond := value }
   | .ss | .s => { data with second := value }
@@ -520,45 +531,11 @@ private def formatParser (date : DateBuilder) : FormatPart → Parser DateBuilde
   | .modifier mod => addDataInDateTime date mod <$> parserWithFormat mod
   | .string s => skipString s *> pure date
 
--- API
-
 namespace Format
 
 /--
 Constructs a new `Format` specification for a date-time string. Modifiers can be combined to create
 custom formats, such as %YYYY, MMMM, D".
-
-### Supported Modifiers:
-- `YYYY`: Four-digit year (e.g., 2024).
-- `YY`: Two-digit year (e.g., 24 for 2024).
-- `MMMM`: Full month name (e.g., January, February).
-- `MMM`: Abbreviated month name (e.g., Jan, Feb).
-- `MM`: Two-digit month (e.g., 01 for January).
-- `M`: One or two-digit month (e.g., 1 for January, 10 for October).
-- `DD`: Two-digit day of the month (e.g., 01, 02).
-- `D`: One or two-digit day of the month (e.g., 1, 2).
-- `d`: One or two-digit day of the month with left padding with spaces. (e.g., 1, 2).
-- `EEEE`: Full name of the day of the week (e.g., Monday, Tuesday).
-- `EEE`: Abbreviated day of the week (e.g., Mon, Tue).
-- `hh`: Two-digit hour in 12-hour format (e.g., 01, 02).
-- `h`: One or two-digit hour in 12-hour format (e.g., 1, 2).
-- `HH`: Two-digit hour in 24-hour format (e.g., 13, 14).
-- `H`: One or two-digit hour in 24-hour format (e.g., 1, 2).
-- `AA`: Uppercase AM/PM indicator (e.g., AM, PM).
-- `aa`: Lowercase am/pm indicator (e.g., am, pm).
-- `mm`: Two-digit minute (e.g., 01, 02).
-- `m`: One or two-digit minute (e.g., 1, 2).
-- `sss`: Three-digit millisecond (e.g., 001, 002).
-- `ss`: Two-digit second (e.g., 01, 02).
-- `s`: One or two-digit second (e.g., 1, 2).
-- `ZZZZZ`: Full timezone offset with hours and minutes (e.g., +03:00).
-- `ZZZZ`: Timezone offset with hours and minutes, without the colon (e.g., +0300).
-- `ZZZ`: Like `ZZZZ`, but displays "UTC" for UTC time.
-- `Z`: Like `ZZZZZ`, but displays "Z" for UTC time.
-- `z`: Timezone name (e.g., Brasilia Standard Time).
-
-Example usage:
-- `"YYYY-MM-DD HH:mm:ss ZZZZ"` → "2024-08-04 14:23:45 +0300"
 -/
 def spec (input : String) : Except String (Format tz) := do
   let string ← specParser.run input
@@ -623,7 +600,7 @@ Parses the input string into a `ZoneDateTime`
 def parse (format : Format aw) (input : String) : Except String aw.type :=
   (parser format.string aw).run input
 
-/-
+/--
 Parses the input string into a `ZoneDateTime`, panics if its wrong
 -/
 def parse! (format : Format aw) (input : String) : aw.type :=
