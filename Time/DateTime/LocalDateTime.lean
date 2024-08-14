@@ -32,6 +32,7 @@ structure LocalDateTime where
 
 namespace LocalDateTime
 
+
 /--
 Converts a `LocalDateTime` into a `Std.Time.Timestamp`
 -/
@@ -123,6 +124,12 @@ def ofUTCTimestamp (stamp : Timestamp) : LocalDateTime := Id.run do
     date := LocalDate.clip year hmon (Day.Ordinal.ofFin (Fin.succ mday))
     time := LocalTime.mk (hour.expandTop (by decide)) minute (second.expandTop (by decide)) nano
   }
+
+/--
+Get the current monotonic time.
+-/
+def now : IO LocalDateTime :=
+  ofUTCTimestamp <$> Timestamp.now
 
 /--
 Getter for the `Year` inside of a `LocalDateTime`

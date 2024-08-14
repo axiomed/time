@@ -134,7 +134,7 @@ def toSeconds (leap : Bool) (month : Ordinal) : Second.Offset :=
 Transforms `Month.Ordinal` into `Minute.Offset`.
 -/
 @[inline]
-def toMinute (leap : Bool) (month : Ordinal) : Minute.Offset :=
+def toMinutes (leap : Bool) (month : Ordinal) : Minute.Offset :=
   toSeconds leap month
   |>.ediv 60
 
@@ -143,7 +143,7 @@ Transforms `Month.Ordinal` into `Hour.Offset`.
 -/
 @[inline]
 def toHours (leap : Bool) (month : Ordinal) : Hour.Offset :=
-  toMinute leap month
+  toMinutes leap month
   |>.ediv 60
 
 /--

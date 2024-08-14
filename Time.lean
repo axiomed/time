@@ -11,6 +11,7 @@ import Std.Time.DateTime
 import Std.Time.Notation
 import Std.Time.Duration
 
+namespace Std
 namespace Time
 
 set_option linter.all true

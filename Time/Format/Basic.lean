@@ -598,7 +598,7 @@ def builderParser (format: FormatString) (func: FormatType Î± format) : Parser Î
 Parses the input string into a `ZoneDateTime`
 -/
 def parse (format : Format aw) (input : String) : Except String aw.type :=
-  (parser format.string aw).run input
+  (parser format.string aw <* eof).run input
 
 /--
 Parses the input string into a `ZoneDateTime`, panics if its wrong

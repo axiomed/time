@@ -60,6 +60,7 @@ namespace Ordinal
 /--
 Creates an `Ordinal` from a natural number, ensuring the value is within bounds.
 -/
+@[inline]
 def ofNat (data : Nat) (h : data ≥ 1 ∧ data ≤ 31 := by decide) : Ordinal :=
   Bounded.LE.ofNat' data h
 
@@ -67,12 +68,14 @@ def ofNat (data : Nat) (h : data ≥ 1 ∧ data ≤ 31 := by decide) : Ordinal :
 Creates an `Ordinal` from a `Fin`, ensuring the value is within bounds, if its 0 then its converted
 to 1.
 -/
+@[inline]
 def ofFin (data : Fin 32) : Ordinal :=
   Bounded.LE.ofFin' data (by decide)
 
 /--
 Converts an `Ordinal` to an `Offset`.
 -/
+@[inline]
 def toOffset (ordinal : Ordinal) : Offset :=
   UnitVal.ofInt ordinal.val
 
@@ -83,8 +86,23 @@ namespace Offset
 /--
 Convert `Day.Offset` into `Second.Offset`.
 -/
+@[inline]
 def toSeconds (days : Offset) : Second.Offset :=
   days.mul 86400
+
+/--
+Convert `Day.Offset` into `Minute.Offset`.
+-/
+@[inline]
+def toMinutes (days : Offset) : Minute.Offset :=
+  days.mul 1440
+
+/--
+Convert `Day.Offset` into `Hour.Offset`.
+-/
+@[inline]
+def toHours (days : Offset) : Hour.Offset :=
+  days.mul 24
 
 end Offset
 end Day

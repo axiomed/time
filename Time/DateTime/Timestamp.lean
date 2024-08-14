@@ -40,6 +40,12 @@ instance : Inhabited Timestamp where
 namespace Timestamp
 
 /--
+Get the current monotonic time.
+-/
+@[extern "lean_get_current_timestamp"]
+opaque now : IO Timestamp
+
+/--
 Transforms a `Timestamp` into a `Second.Offset`
 -/
 @[inline]

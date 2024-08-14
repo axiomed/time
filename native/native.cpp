@@ -16,13 +16,3 @@ extern "C" LEAN_EXPORT lean_obj_res lean_get_current_time() {
 
     return lean_io_result_mk_ok(lean_ts);
 }
-
-extern "C" LEAN_EXPORT lean_obj_res lean_get_current_timestamp() {
-    using namespace std::chrono;
-
-    system_clock::time_point now = system_clock::now();
-    long long timestamp = duration_cast<seconds>(now.time_since_epoch()).count();
-
-    lean_object *lean_timestamp = lean_int_to_int((int)timestamp);
-    return lean_io_result_mk_ok(lean_timestamp);
-}
